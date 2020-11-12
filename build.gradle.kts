@@ -15,4 +15,8 @@ dependencies {
     implementation("io.ktor:ktor-client-serialization-jvm:1.4.0")
     implementation("io.ktor:ktor-client-logging-jvm:1.4.0")
     implementation("org.slf4j:slf4j-simple:1.8.0-beta4")
+
+    // necessary for encryption of secrets for GitHub
+    implementation("com.goterl.lazycode:lazysodium-java:4.3.0")
+    implementation("net.java.dev.jna:jna:5.6.0")
 }
