@@ -1,6 +1,11 @@
 plugins {
     kotlin("jvm") version "1.4.10"
     kotlin("plugin.serialization") version "1.4.10"
+    application
+}
+
+application {
+    mainClass.set("org.hildan.github.secrets.wizard.MainKt")
 }
 
 repositories {
