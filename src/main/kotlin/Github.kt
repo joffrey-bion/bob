@@ -15,6 +15,7 @@ import org.hildan.github.secrets.wizard.http.ktorClient
 import org.hildan.github.secrets.wizard.http.oAuthHeader
 import java.awt.Desktop
 import java.net.URI
+import java.util.*
 import kotlin.system.exitProcess
 
 private const val newTokenUrl = "https://github.com/settings/tokens/new?description=GitHub%20Secrets%20Wizard&scopes=repo"
@@ -44,11 +45,11 @@ data class GitHub(
     suspend fun setSecret(secretName: String, secretValue: String, repo: GitHubRepo) {
         println("Setting secret $secretName in repo ${repo.slug}")
         val publicKey = fetchPublicKey(repo)
-        val encrypted = lazySodium.cryptoBoxSealEasy(secretValue, publicKey.asLibsodiumKey())
+        val encryptedHexa = lazySodium.cryptoBoxSealEasy(secretValue, publicKey.asLibsodiumKey())
         ghClient.put<Unit> {
             url { encodedPath = "/repos/${repo.slug}/actions/secrets/$secretName" }
             contentType(ContentType.Application.Json)
-            body = GitHubCreateSecretRequest(publicKey.id, encrypted)
+            body = GitHubCreateSecretRequest(publicKey.id, encryptedHexa.hexadecimalToBase64())
         }
     }
 
@@ -109,5 +110,11 @@ private data class GitHubCreateSecretRequest(
     @SerialName("key_id")
     val publicKeyId: String,
     @SerialName("encrypted_value")
-    val secretValue: String,
+    val secretValueBase64: String,
 )
+
+private fun String.hexadecimalToBase64() = byteArrayFromHexString().toBase64()
+
+private fun String.byteArrayFromHexString() = chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+
+private fun ByteArray.toBase64() = Base64.getEncoder().encodeToString(this)
