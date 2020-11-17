@@ -7,18 +7,11 @@ import io.ktor.client.*
 import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.hildan.github.secrets.wizard.http.ktorClient
 import org.hildan.github.secrets.wizard.http.oAuthHeader
-import java.awt.Desktop
-import java.net.URI
 import java.util.*
-import kotlin.system.exitProcess
-
-private const val newTokenUrl = "https://github.com/settings/tokens/new?description=GitHub%20Secrets%20Wizard&scopes=repo"
 
 data class GitHubRepo(
     val userOrOrg: String,
@@ -43,7 +36,7 @@ data class GitHub(
     private val lazySodium = LazySodiumJava(SodiumJava())
 
     suspend fun setSecret(secretName: String, secretValue: String, repo: GitHubRepo) {
-        println("Setting secret $secretName in repo ${repo.slug}")
+        println("Setting secret $secretName...")
         val publicKey = fetchPublicKey(repo)
         val encryptedHexa = lazySodium.cryptoBoxSealEasy(secretValue, publicKey.asLibsodiumKey())
         ghClient.put<Unit> {
@@ -58,40 +51,9 @@ data class GitHub(
     }
 
     companion object {
-        suspend fun login(): GitHub {
-            val token = System.getenv("GITHUB_TOKEN") ?: setupAndGetToken()
-            return GitHub(token)
-        }
-    }
-}
+        const val newTokenUrl = "https://github.com/settings/tokens/new?description=GitHub%20Secrets%20Wizard&scopes=repo"
 
-private suspend fun setupAndGetToken(): String {
-    println("GITHUB_TOKEN is not set, please create a new token at $newTokenUrl")
-    if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-        withContext(Dispatchers.IO) {
-            Desktop.getDesktop().browse(URI(newTokenUrl))
-        }
-    }
-    print("Enter Personal Access Token: ")
-    val token = readLine()
-    if (token.isNullOrBlank()) {
-        System.err.println("No token provided. Aborting.")
-        exitProcess(1)
-    }
-    askAndStore(token)
-    return token
-}
-
-private suspend fun askAndStore(token: String) {
-    if ("Windows" !in System.getProperty("os.name")) {
-        return // this is only supported on windows
-    }
-    while (true) {
-        print("Would you like to store the token in GITHUB_TOKEN environment variable? (Y/n) ")
-        when (readLine()!!) {
-            "", "y" -> return setWindowsEnv("GITHUB_TOKEN", token)
-            "n" -> return
-        }
+        fun login(token: String): GitHub = GitHub(token)
     }
 }
 

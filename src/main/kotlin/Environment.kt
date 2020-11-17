@@ -4,6 +4,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import java.awt.Desktop
+import java.net.URI
+
+@Suppress("BlockingMethodInNonBlockingContext")
+suspend fun browseIfSupported(url: String) {
+    if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+        withContext(Dispatchers.IO) {
+            Desktop.getDesktop().browse(URI(url))
+        }
+    }
+}
 
 @Suppress("BlockingMethodInNonBlockingContext")
 suspend fun setWindowsEnv(name: String, value: String) = withContext(Dispatchers.IO) {
