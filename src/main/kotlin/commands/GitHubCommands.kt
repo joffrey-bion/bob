@@ -14,23 +14,33 @@ import org.hildan.github.secrets.wizard.providers.OssSonatype
 import org.hildan.github.secrets.wizard.setWindowsEnv
 import kotlin.system.exitProcess
 
-private const val tokenEnvVariable = "GITHUB_TOKEN"
+private const val GITHUB_USER = "GITHUB_USER"
+private const val GITHUB_TOKEN = "GITHUB_TOKEN"
 
 class GitHubSecretCommand : CliktCommand(
     name = "set-github-secrets",
     help = "Sets repository secrets on GitHub by fetching keys from various providers (Bintray, OSS Sonatype, ...)",
 ) {
-    private val githubRepo by option("-r", "--github-repo", help = "The GitHub repository to interact with").required()
+    private val githubRepo by option(
+        "-r",
+        "--github-repo",
+        help = "The GitHub repository to set secrets for",
+    ).required()
 
     private val githubUser by option(
-        "-u", "--github-user", envvar = "GITHUB_USER", help = "Your GitHub username or organization"
+        "-u",
+        "--github-user",
+        envvar = GITHUB_USER,
+        help = "Your GitHub username or organization. " +
+            "Defaults to the $GITHUB_USER environment variable, or prompts for a value.",
     ).prompt("Your GitHub username or organization")
 
     private val githubToken by option(
         "-t",
         "--github-token",
-        envvar = tokenEnvVariable,
-        help = "The token to use to authenticate with GitHub (GitHub doesn't allow password authentication anymore)"
+        envvar = GITHUB_TOKEN,
+        help = "The token to use to authenticate with GitHub (GitHub doesn't allow password authentication anymore). " +
+            "Defaults to the $GITHUB_TOKEN environment variable, or triggers the creation of a new personal token.",
     )
 
     private val bintray by option(help = "Enables Bintray secrets setup").groupSwitch("--bintray" to BintraySecretOptions())
@@ -73,7 +83,7 @@ class GitHubSecretCommand : CliktCommand(
     }
 
     private suspend fun setupAndGetToken(): String {
-        println("$tokenEnvVariable is not set, please create a new token at ${GitHub.newTokenUrl}")
+        println("$GITHUB_TOKEN is not set, please create a new token at ${GitHub.newTokenUrl}")
         browseIfSupported(GitHub.newTokenUrl)
         val token = TermUi.prompt("Enter Personal Access Token", hideInput = true)
         if (token.isNullOrBlank()) {
@@ -89,12 +99,12 @@ class GitHubSecretCommand : CliktCommand(
             return // this is only supported on windows
         }
         val shouldStore = TermUi.confirm(
-            text = "Would you like to store the token in $tokenEnvVariable environment variable? (Y/n)",
-            default = true
+            text = "Would you like to store the token in $GITHUB_TOKEN environment variable? (Y/n)",
+            default = true,
         ) ?: true // for non-interactive
 
         if (shouldStore) {
-            setWindowsEnv(tokenEnvVariable, token)
+            setWindowsEnv(GITHUB_TOKEN, token)
         }
     }
 }
@@ -104,21 +114,23 @@ private class BintraySecretOptions : OptionGroup(
     help = "Options to setup the Bintray API key as GitHub secret (enable with --bintray)",
 ) {
     val user by option("--bintray-login", help = "Your Bintray login (defaults to the GitHub username)").prompt(
-        "Your Bintray login",
+        text = "Your Bintray login",
         default = "",
     )
 
     val password by option("--bintray-password", help = "Your Bintray password").prompt(
-        "Your Bintray password",
+        text = "Your Bintray password",
         hideInput = true,
     )
 
     val userSecretName by option(
-        "--bintray-user-secret-name", help = "The name of the secret variable holding the Bintray username"
+        "--bintray-user-secret-name",
+        help = "The name of the secret variable holding the Bintray username",
     ).default("BINTRAY_USER")
 
     val keySecretName by option(
-        "--bintray-key-secret-name", help = "The name of the secret variable holding the Bintray API key"
+        "--bintray-key-secret-name",
+        help = "The name of the secret variable holding the Bintray API key",
     ).default("BINTRAY_KEY")
 }
 
@@ -127,19 +139,22 @@ private class SonatypeSecretOptions : OptionGroup(
     help = "Options to setup the OSS Sonatype user token and key as GitHub secrets (enable with --sonatype)",
 ) {
     val user by option("--ossrh-login", help = "Your OSS Sonatype login (defaults to the GitHub username)").prompt(
-        "Your OSS Sonatype login",
+        text = "Your OSS Sonatype login",
         default = "",
     )
 
     val password by option("--ossrh-password", help = "Your OSS Sonatype password").prompt(
-        "Your OSS Sonatype password", hideInput = true
+        text = "Your OSS Sonatype password",
+        hideInput = true,
     )
 
     val userTokenSecretName by option(
-        "--ossrh-user-secret-name", help = "The name of the secret variable holding the OSS Sonatype user token"
+        "--ossrh-user-secret-name",
+        help = "The name of the secret variable holding the OSS Sonatype user token",
     ).default("OSSRH_USER_TOKEN")
 
     val keySecretName by option(
-        "--ossrh-key-secret-name", help = "The name of the secret variable holding the OSS Sonatype API key"
+        "--ossrh-key-secret-name",
+        help = "The name of the secret variable holding the OSS Sonatype API key",
     ).default("OSSRH_KEY")
 }

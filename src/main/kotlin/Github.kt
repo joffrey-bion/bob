@@ -75,8 +75,6 @@ private data class GitHubCreateSecretRequest(
     val secretValueBase64: String,
 )
 
-private fun String.hexadecimalToBase64() = byteArrayFromHexString().toBase64()
+private fun String.hexadecimalToBase64() = Base64.getEncoder().encodeToString(byteArrayFromHexString())
 
-private fun String.byteArrayFromHexString() = chunked(2).map { it.toInt(16).toByte() }.toByteArray()
-
-private fun ByteArray.toBase64() = Base64.getEncoder().encodeToString(this)
+private fun String.byteArrayFromHexString() = chunked(2).map { it.toByte(16) }.toByteArray()
