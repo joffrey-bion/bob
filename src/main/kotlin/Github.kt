@@ -9,6 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.hildan.github.secrets.wizard.http.OAuth
 import org.hildan.github.secrets.wizard.http.ktorClient
 import org.hildan.github.secrets.wizard.http.oAuthHeader
 import java.util.*
@@ -54,8 +55,43 @@ data class GitHub(
         const val newTokenUrl = "https://github.com/settings/tokens/new?description=GitHub%20Secrets%20Wizard&scopes=repo"
 
         fun login(token: String): GitHub = GitHub(token)
+
+        suspend fun loginOAuth(clientId: String, clientSecret: String): GitHub {
+            val client = ktorClient {
+                followRedirects = false
+            }
+
+            val code = OAuth.authorize("https://github.com/login/oauth/authorize?client_id=$clientId&scope=repo")
+
+            val response = client.post<GitHubOAuthResponse>("https://github.com/login/oauth/access_token") {
+                accept(ContentType.Application.Json)
+                contentType(ContentType.Application.Json)
+                body = GitHubOAuthRequest(clientId, clientSecret, code)
+            }
+            return GitHub(response.token)
+        }
     }
 }
+
+@Serializable
+private data class GitHubOAuthRequest(
+    @SerialName("client_id")
+    val clientId: String,
+    @SerialName("client_secret")
+    val clientSecret: String,
+    @SerialName("code")
+    val authorizationCode: String,
+)
+
+@Serializable
+private data class GitHubOAuthResponse(
+    @SerialName("access_token")
+    val token: String,
+    @SerialName("token_type")
+    val tokenType: String,
+    @SerialName("scope")
+    val scopes: String,
+)
 
 @Serializable
 private data class GitHubPublicKeyResponse(

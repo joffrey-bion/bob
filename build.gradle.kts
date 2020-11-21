@@ -26,6 +26,8 @@ dependencies {
     // necessary for encryption of secrets for GitHub
     implementation("com.goterl.lazycode:lazysodium-java:4.3.0")
     implementation("net.java.dev.jna:jna:5.6.0")
+
+    implementation("com.google.oauth-client:google-oauth-client-jetty:1.31.2")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
