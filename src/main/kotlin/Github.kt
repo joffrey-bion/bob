@@ -113,4 +113,8 @@ private data class GitHubCreateSecretRequest(
 
 private fun String.hexadecimalToBase64() = Base64.getEncoder().encodeToString(byteArrayFromHexString())
 
-private fun String.byteArrayFromHexString() = chunked(2).map { it.toByte(16) }.toByteArray()
+@OptIn(ExperimentalUnsignedTypes::class)
+private fun String.byteArrayFromHexString() = chunked(2)
+    .map { it.toUByte(16) }
+    .toUByteArray()
+    .toByteArray()
