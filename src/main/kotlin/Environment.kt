@@ -7,12 +7,9 @@ import kotlinx.coroutines.withContext
 import java.awt.Desktop
 import java.net.URI
 
-@Suppress("BlockingMethodInNonBlockingContext")
-suspend fun browseIfSupported(url: String) {
+fun browseIfSupported(url: String) {
     if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-        withContext(Dispatchers.IO) {
-            Desktop.getDesktop().browse(URI(url))
-        }
+        Desktop.getDesktop().browse(URI(url))
     }
 }
 
