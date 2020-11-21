@@ -41,7 +41,12 @@ class GitHubSecretCommand : CliktCommand(
         envvar = GITHUB_TOKEN,
         help = "The token to use to authenticate with GitHub (GitHub doesn't allow password authentication anymore). " +
             "Defaults to the $GITHUB_TOKEN environment variable, or triggers the creation of a new personal token.",
-    )
+    ).defaultLazy {
+        runBlocking { setupAndGetToken() }
+    }
+
+    private val personalToken by option(help = "Enables setting the Personal Access Token as a repo secret")
+        .groupSwitch("--set-pat" to GitHubPersonalTokenOptions())
 
     private val bintray by option(help = "Enables Bintray secrets setup")
         .groupSwitch("--bintray" to BintraySecretOptions { githubUser })
@@ -58,8 +63,12 @@ class GitHubSecretCommand : CliktCommand(
     override fun run() = runBlocking {
         println("Setting secrets in GitHub repository $githubRepo")
 
-        val gitHub = GitHub.login(githubToken ?: setupAndGetToken())
+        val gitHub = GitHub.login(githubToken)
         val repo = GitHubRepo(githubUser, githubRepo)
+
+        personalToken?.let {
+            gitHub.setSecret(it.secretName, githubToken, repo)
+        }
 
         bintray?.let {
             print("Fetching API key from Bintray...")
@@ -109,6 +118,15 @@ class GitHubSecretCommand : CliktCommand(
             setWindowsEnv(GITHUB_TOKEN, token)
         }
     }
+}
+
+private class GitHubPersonalTokenOptions : OptionGroup(
+    name = "Options for GitHub personal token"
+) {
+    val secretName by option(
+        "--github-token-secret-name",
+        help = "The name of the secret variable holding the GitHub Personal Access Token (PAT)",
+    ).default("PAT")
 }
 
 private class BintraySecretOptions(
