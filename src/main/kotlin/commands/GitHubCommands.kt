@@ -43,9 +43,11 @@ class GitHubSecretCommand : CliktCommand(
             "Defaults to the $GITHUB_TOKEN environment variable, or triggers the creation of a new personal token.",
     )
 
-    private val bintray by option(help = "Enables Bintray secrets setup").groupSwitch("--bintray" to BintraySecretOptions())
+    private val bintray by option(help = "Enables Bintray secrets setup")
+        .groupSwitch("--bintray" to BintraySecretOptions { githubUser })
 
-    private val sonatype by option(help = "Enables OSS Sonatype (Maven Central) secrets setup").groupSwitch("--sonatype" to SonatypeSecretOptions())
+    private val sonatype by option(help = "Enables OSS Sonatype (Maven Central) secrets setup")
+        .groupSwitch("--sonatype" to SonatypeSecretOptions { githubUser })
 
     private val rawSecrets: Map<String, String> by option(
         "-s",
@@ -109,14 +111,16 @@ class GitHubSecretCommand : CliktCommand(
     }
 }
 
-private class BintraySecretOptions : OptionGroup(
+private class BintraySecretOptions(
+    val defaultUserLazy: () -> String
+) : OptionGroup(
     name = "Options for Bintray secrets",
     help = "Options to setup the Bintray API key as GitHub secret (enable with --bintray)",
 ) {
-    val user by option("--bintray-login", help = "Your Bintray login (defaults to the GitHub username)").prompt(
-        text = "Your Bintray login",
-        default = "",
-    )
+    val user by option("--bintray-login", help = "Your Bintray login (defaults to the GitHub username)").defaultLazy {
+        val defaultUser = defaultUserLazy()
+        TermUi.prompt("Your Bintray login", default = defaultUser) ?: defaultUser
+    }
 
     val password by option("--bintray-password", help = "Your Bintray password").prompt(
         text = "Your Bintray password",
@@ -134,14 +138,16 @@ private class BintraySecretOptions : OptionGroup(
     ).default("BINTRAY_KEY")
 }
 
-private class SonatypeSecretOptions : OptionGroup(
+private class SonatypeSecretOptions(
+    val defaultUserLazy: () -> String
+) : OptionGroup(
     name = "Options for OSS Sonatype secrets",
     help = "Options to setup the OSS Sonatype user token and key as GitHub secrets (enable with --sonatype)",
 ) {
-    val user by option("--ossrh-login", help = "Your OSS Sonatype login (defaults to the GitHub username)").prompt(
-        text = "Your OSS Sonatype login",
-        default = "",
-    )
+    val user by option("--ossrh-login", help = "Your OSS Sonatype login (defaults to the GitHub username)").defaultLazy {
+        val defaultUser = defaultUserLazy()
+        TermUi.prompt("Your OSS Sonatype login", default = defaultUser) ?: defaultUser
+    }
 
     val password by option("--ossrh-password", help = "Your OSS Sonatype password").prompt(
         text = "Your OSS Sonatype password",
