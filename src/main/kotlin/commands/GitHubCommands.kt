@@ -45,6 +45,11 @@ class GitHubSecretCommand : CliktCommand(
         runBlocking { setupAndGetToken() }
     }
 
+    private val dryRun by option(
+        help = "Enables dry-run mode. In this mode, the secrets won't actually be set on the repository, but the keys" +
+            " will be retrieved from providers and the GitHub login will happen as well."
+    ).flag()
+
     private val personalToken by option(help = "Enables setting the Personal Access Token as a repo secret")
         .groupSwitch("--set-pat" to GitHubPersonalTokenOptions())
 
@@ -63,7 +68,7 @@ class GitHubSecretCommand : CliktCommand(
     override fun run() = runBlocking {
         println("Setting secrets in GitHub repository $githubRepo")
 
-        val gitHub = GitHub.login(githubToken)
+        val gitHub = GitHub.login(githubToken, dryRun = dryRun)
         val repo = GitHubRepo(githubUser, githubRepo)
 
         personalToken?.let {

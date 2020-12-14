@@ -23,6 +23,7 @@ data class GitHubRepo(
 
 data class GitHub(
     val token: String,
+    var dryRun: Boolean = false,
 ) {
     private val ghClient: HttpClient = ktorClient {
         install(DefaultRequest) {
@@ -38,6 +39,10 @@ data class GitHub(
 
     suspend fun setSecret(secretName: String, secretValue: String, repo: GitHubRepo) {
         println("Setting secret $secretName...")
+        if (dryRun) {
+            println("DRY: would have set $secretName to '$secretValue' in repository ${repo.slug}")
+            return
+        }
         val publicKey = fetchPublicKey(repo)
         val encryptedHexa = lazySodium.cryptoBoxSealEasy(secretValue, publicKey.asLibsodiumKey())
         ghClient.put<Unit> {
@@ -54,7 +59,7 @@ data class GitHub(
     companion object {
         const val newTokenUrl = "https://github.com/settings/tokens/new?description=GitHub%20Secrets%20Wizard&scopes=repo"
 
-        fun login(token: String): GitHub = GitHub(token)
+        fun login(token: String, dryRun: Boolean = false): GitHub = GitHub(token, dryRun)
 
         suspend fun loginOAuth(clientId: String, clientSecret: String): GitHub {
             val client = ktorClient {
