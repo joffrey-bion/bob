@@ -10,6 +10,7 @@ import org.hildan.github.secrets.wizard.GitHub
 import org.hildan.github.secrets.wizard.GitHubRepo
 import org.hildan.github.secrets.wizard.browseIfSupported
 import org.hildan.github.secrets.wizard.providers.Bintray
+import org.hildan.github.secrets.wizard.providers.Heroku
 import org.hildan.github.secrets.wizard.providers.OssSonatype
 import org.hildan.github.secrets.wizard.setWindowsEnv
 import kotlin.system.exitProcess
@@ -59,6 +60,9 @@ class GitHubSecretCommand : CliktCommand(
     private val sonatype by option(help = "Enables OSS Sonatype (Maven Central) secrets setup")
         .groupSwitch("--sonatype" to SonatypeSecretOptions { githubUser })
 
+    private val heroku by option(help = "Enables Heroku secrets setup")
+        .groupSwitch("--heroku" to HerokuSecretOptions())
+
     private val rawSecrets: Map<String, String> by option(
         "-s",
         "--secret",
@@ -89,6 +93,13 @@ class GitHubSecretCommand : CliktCommand(
             println("Done.")
             gitHub.setSecret(it.userTokenSecretName, sonatypeKeys.userToken, repo)
             gitHub.setSecret(it.keySecretName, sonatypeKeys.apiKey, repo)
+        }
+
+        heroku?.let {
+            print("Fetching API key from Heroku...")
+            val apiKey = Heroku.fetchApiKey(it.email, it.password)
+            println("Done.")
+            gitHub.setSecret(it.keySecretName, apiKey, repo)
         }
 
         rawSecrets.forEach { (key, value) ->

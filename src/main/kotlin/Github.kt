@@ -11,7 +11,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.hildan.github.secrets.wizard.http.OAuth
 import org.hildan.github.secrets.wizard.http.ktorClient
-import org.hildan.github.secrets.wizard.http.oAuthHeader
+import org.hildan.github.secrets.wizard.http.tokenAuthHeader
 import java.util.*
 
 data class GitHubRepo(
@@ -31,7 +31,7 @@ data class GitHub(
                 protocol = URLProtocol.HTTPS
                 host = "api.github.com"
             }
-            oAuthHeader(token)
+            tokenAuthHeader(token)
             accept(ContentType.Application.Json)
         }
     }

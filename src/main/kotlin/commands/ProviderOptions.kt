@@ -60,3 +60,20 @@ class SonatypeSecretOptions(
         help = "The name of the secret variable holding the OSS Sonatype API key",
     ).default("OSSRH_KEY")
 }
+
+class HerokuSecretOptions : OptionGroup(
+    name = "Options for Heroku secrets",
+    help = "Options to setup the Heroku API key as secret (enable with --heroku)",
+) {
+    val email by option("--heroku-email", help = "Your Heroku email").prompt(text = "Your Heroku email")
+
+    val password by option("--heroku-password", help = "Your Heroku password").prompt(
+        text = "Your Heroku password",
+        hideInput = true,
+    )
+
+    val keySecretName by option(
+        "--heroku-key-secret-name",
+        help = "The name of the secret variable holding the Heroku API key",
+    ).default("HEROKU_API_KEY")
+}

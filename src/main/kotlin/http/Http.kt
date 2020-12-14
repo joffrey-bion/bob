@@ -45,7 +45,11 @@ fun HttpRequestBuilder.basicAuthHeader(login: String, password: String) {
     header("Authorization", "Basic $basicAuth")
 }
 
-fun HttpRequestBuilder.oAuthHeader(token: String) {
+fun HttpRequestBuilder.bearerAuthHeader(token: String) {
+    header("Authorization", "Bearer $token")
+}
+
+fun HttpRequestBuilder.tokenAuthHeader(token: String) {
     header("Authorization", "token $token")
 }
 
