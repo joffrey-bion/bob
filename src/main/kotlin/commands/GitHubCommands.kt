@@ -77,17 +77,15 @@ class GitHubSecretCommand : CliktCommand(
 
         bintray?.let {
             print("Fetching API key from Bintray...")
-            val bintrayUser = it.user.ifEmpty { githubUser }
-            val bintrayKey = Bintray.fetchApiKey(bintrayUser, it.password)
+            val bintrayKey = Bintray.fetchApiKey(it.user, it.password)
             println("Done.")
-            gitHub.setSecret(it.userSecretName, bintrayUser, repo)
+            gitHub.setSecret(it.userSecretName, it.user, repo)
             gitHub.setSecret(it.keySecretName, bintrayKey, repo)
         }
 
         sonatype?.let {
             print("Fetching user token and API key from OSS Sonatype...")
-            val sonatypeUser = it.user.ifEmpty { githubUser }
-            val sonatypeKeys = OssSonatype.fetchKeys(sonatypeUser, it.password)
+            val sonatypeKeys = OssSonatype.fetchKeys(it.user, it.password)
             println("Done.")
             gitHub.setSecret(it.userTokenSecretName, sonatypeKeys.userToken, repo)
             gitHub.setSecret(it.keySecretName, sonatypeKeys.apiKey, repo)
