@@ -61,7 +61,10 @@ data class GitHub(
                 followRedirects = false
             }
 
-            val code = OAuth.authorize("https://github.com/login/oauth/authorize?client_id=$clientId&scope=repo")
+            val code = OAuth.authorizeInBrowser(
+                url = "https://github.com/login/oauth/authorize?client_id=$clientId&scope=repo",
+                callbackUriParamName = "redirect_uri",
+            )
 
             val response = client.post<GitHubOAuthResponse>("https://github.com/login/oauth/access_token") {
                 accept(ContentType.Application.Json)

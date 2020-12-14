@@ -5,7 +5,7 @@ import org.hildan.github.secrets.wizard.browseIfSupported
 
 object OAuth {
 
-    fun authorize(url: String, callbackUriParamName: String = "redirect_uri"): String {
+    fun authorizeInBrowser(url: String, callbackUriParamName: String): String {
         val server = LocalServerReceiver()
         val redirectUri = server.redirectUri
         browseIfSupported("$url&$callbackUriParamName=$redirectUri")
