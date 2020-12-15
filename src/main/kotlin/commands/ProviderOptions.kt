@@ -8,14 +8,14 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 
 class BintraySecretOptions(
-    val defaultUserLazy: () -> String
+    val defaultUserLazy: () -> String?
 ) : OptionGroup(
     name = "Options for Bintray secrets",
     help = "Options to setup the Bintray API key as a secret (enable with --bintray)",
 ) {
     val user by option("--bintray-login", help = "Your Bintray login (defaults to the GitHub username)").defaultLazy {
         val defaultUser = defaultUserLazy()
-        TermUi.prompt("Your Bintray login", default = defaultUser) ?: defaultUser
+        TermUi.prompt("Your Bintray login", default = defaultUser) ?: defaultUser ?: error("Bintray user required")
     }
 
     val password by option("--bintray-password", help = "Your Bintray password").prompt(
@@ -35,14 +35,14 @@ class BintraySecretOptions(
 }
 
 class SonatypeSecretOptions(
-    val defaultUserLazy: () -> String
+    val defaultUserLazy: () -> String?
 ) : OptionGroup(
     name = "Options for OSS Sonatype secrets",
     help = "Options to setup the OSS Sonatype user token and key as secrets (enable with --sonatype)",
 ) {
     val user by option("--ossrh-login", help = "Your OSS Sonatype login (defaults to the GitHub username)").defaultLazy {
         val defaultUser = defaultUserLazy()
-        TermUi.prompt("Your OSS Sonatype login", default = defaultUser) ?: defaultUser
+        TermUi.prompt("Your OSS Sonatype login", default = defaultUser) ?: defaultUser ?: error("OSS Sonatype user required")
     }
 
     val password by option("--ossrh-password", help = "Your OSS Sonatype password").prompt(
