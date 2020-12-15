@@ -9,7 +9,7 @@ import org.hildan.github.secrets.wizard.commands.SetEnvironmentKeysCommand
 
 fun main(args: Array<String>) = Cli().subcommands(GitHubSecretCommand(), SetEnvironmentKeysCommand()).main(args)
 
-class Cli : NoOpCliktCommand(name = "dev", help = "Local development utilities") {
+class Cli : NoOpCliktCommand(name = "secrets-wizard", help = "A helper to fetch and set secrets") {
     init {
         context {
             helpFormatter = CliktHelpFormatter(showDefaultValues = true)
