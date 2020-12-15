@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 import org.hildan.github.secrets.wizard.http.OAuth
 import org.hildan.github.secrets.wizard.http.ktorClient
 import org.hildan.github.secrets.wizard.http.tokenAuthHeader
+import org.hildan.github.secrets.wizard.providers.Secret
 import java.util.*
 
 data class GitHubRepo(
@@ -37,16 +38,16 @@ data class GitHub(
     }
     private val lazySodium = LazySodiumJava(SodiumJava())
 
-    suspend fun setSecret(secretName: String, secretValue: String, repo: GitHubRepo) {
-        println("Setting secret $secretName...")
+    suspend fun setSecret(secret: Secret, repo: GitHubRepo) {
+        println("Setting secret ${secret.name}...")
         if (dryRun) {
-            println("DRY: would have set $secretName to '$secretValue' in repository ${repo.slug}")
+            println("DRY: would have set ${secret.name} to '${secret.value}' in repository ${repo.slug}")
             return
         }
         val publicKey = fetchPublicKey(repo)
-        val encryptedHexa = lazySodium.cryptoBoxSealEasy(secretValue, publicKey.asLibsodiumKey())
+        val encryptedHexa = lazySodium.cryptoBoxSealEasy(secret.value, publicKey.asLibsodiumKey())
         ghClient.put<Unit> {
-            url { encodedPath = "/repos/${repo.slug}/actions/secrets/$secretName" }
+            url { encodedPath = "/repos/${repo.slug}/actions/secrets/${secret.name}" }
             contentType(ContentType.Application.Json)
             body = GitHubCreateSecretRequest(publicKey.id, encryptedHexa.hexadecimalToBase64())
         }

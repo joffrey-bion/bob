@@ -1,4 +1,4 @@
-package org.hildan.github.secrets.wizard.providers
+package org.hildan.github.secrets.wizard.providers.heroku
 
 import com.github.ajalt.clikt.core.PrintMessage
 import io.ktor.client.*
@@ -13,7 +13,7 @@ import org.hildan.github.secrets.wizard.http.bearerAuthHeader
 import org.hildan.github.secrets.wizard.http.httpFormUrlEncoded
 import org.hildan.github.secrets.wizard.http.ktorClient
 
-object Heroku {
+object HerokuApi {
 
     @OptIn(KtorExperimentalAPI::class)
     suspend fun fetchApiKey(login: String, password: String): String {

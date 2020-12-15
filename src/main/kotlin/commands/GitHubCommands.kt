@@ -9,9 +9,10 @@ import kotlinx.coroutines.runBlocking
 import org.hildan.github.secrets.wizard.GitHub
 import org.hildan.github.secrets.wizard.GitHubRepo
 import org.hildan.github.secrets.wizard.browseIfSupported
-import org.hildan.github.secrets.wizard.providers.Bintray
-import org.hildan.github.secrets.wizard.providers.Heroku
-import org.hildan.github.secrets.wizard.providers.OssSonatype
+import org.hildan.github.secrets.wizard.providers.Secret
+import org.hildan.github.secrets.wizard.providers.bintray.Bintray
+import org.hildan.github.secrets.wizard.providers.heroku.Heroku
+import org.hildan.github.secrets.wizard.providers.sonatype.OssSonatype
 import org.hildan.github.secrets.wizard.setWindowsEnv
 import kotlin.system.exitProcess
 
@@ -55,13 +56,13 @@ class GitHubSecretCommand : CliktCommand(
         .groupSwitch("--set-pat" to GitHubPersonalTokenOptions())
 
     private val bintray by option(help = "Enables Bintray secrets setup")
-        .groupSwitch("--bintray" to BintraySecretOptions { githubUser })
+        .groupSwitch("--bintray" to Bintray.options { githubUser })
 
     private val sonatype by option(help = "Enables OSS Sonatype (Maven Central) secrets setup")
-        .groupSwitch("--sonatype" to SonatypeSecretOptions { githubUser })
+        .groupSwitch("--sonatype" to OssSonatype.options { githubUser })
 
     private val heroku by option(help = "Enables Heroku secrets setup")
-        .groupSwitch("--heroku" to HerokuSecretOptions())
+        .groupSwitch("--heroku" to Heroku.options { githubUser })
 
     private val rawSecrets: Map<String, String> by option(
         "-s",
@@ -76,34 +77,32 @@ class GitHubSecretCommand : CliktCommand(
         val repo = GitHubRepo(githubUser, githubRepo)
 
         personalToken?.let {
-            gitHub.setSecret(it.secretName, githubToken, repo)
+            gitHub.setSecret(Secret(it.secretName, githubToken), repo)
         }
 
         bintray?.let {
             print("Fetching API key from Bintray...")
-            val bintrayKey = Bintray.fetchApiKey(it.user, it.password)
+            val secrets = Bintray.fetchSecrets(it)
             println("Done.")
-            gitHub.setSecret(it.userSecretName, it.user, repo)
-            gitHub.setSecret(it.keySecretName, bintrayKey, repo)
+            secrets.forEach { s -> gitHub.setSecret(s, repo) }
         }
 
         sonatype?.let {
             print("Fetching user token and API key from OSS Sonatype...")
-            val sonatypeKeys = OssSonatype.fetchKeys(it.user, it.password)
+            val secrets = OssSonatype.fetchSecrets(it)
             println("Done.")
-            gitHub.setSecret(it.userTokenSecretName, sonatypeKeys.userToken, repo)
-            gitHub.setSecret(it.keySecretName, sonatypeKeys.apiKey, repo)
+            secrets.forEach { s -> gitHub.setSecret(s, repo) }
         }
 
         heroku?.let {
             print("Fetching API key from Heroku...")
-            val apiKey = Heroku.fetchApiKey(it.email, it.password)
+            val secrets = Heroku.fetchSecrets(it)
             println("Done.")
-            gitHub.setSecret(it.keySecretName, apiKey, repo)
+            secrets.forEach { s -> gitHub.setSecret(s, repo) }
         }
 
         rawSecrets.forEach { (key, value) ->
-            gitHub.setSecret(key, value, repo)
+            gitHub.setSecret(Secret(key, value), repo)
         }
     }
 

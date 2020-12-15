@@ -6,8 +6,8 @@ import com.github.ajalt.clikt.parameters.options.associate
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import kotlinx.coroutines.runBlocking
-import org.hildan.github.secrets.wizard.providers.Bintray
-import org.hildan.github.secrets.wizard.providers.OssSonatype
+import org.hildan.github.secrets.wizard.providers.bintray.Bintray
+import org.hildan.github.secrets.wizard.providers.sonatype.OssSonatype
 import org.hildan.github.secrets.wizard.setWindowsEnv
 
 class SetEnvironmentKeysCommand : CliktCommand(
@@ -23,10 +23,10 @@ class SetEnvironmentKeysCommand : CliktCommand(
     ).prompt("Your GitHub username or organization")
 
     private val bintray by option(help = "Enables Bintray secrets setup")
-        .groupSwitch("--bintray" to BintraySecretOptions { githubUser })
+        .groupSwitch("--bintray" to Bintray.options { githubUser })
 
     private val sonatype by option(help = "Enables OSS Sonatype (Maven Central) secrets setup")
-        .groupSwitch("--sonatype" to SonatypeSecretOptions { githubUser })
+        .groupSwitch("--sonatype" to OssSonatype.options { githubUser })
 
     private val rawSecrets: Map<String, String> by option(
         "-s",
@@ -39,20 +39,16 @@ class SetEnvironmentKeysCommand : CliktCommand(
 
         bintray?.let {
             print("Fetching API key from Bintray...")
-            val bintrayUser = it.user.ifEmpty { githubUser }
-            val bintrayKey = Bintray.fetchApiKey(bintrayUser, it.password)
+            val secrets = Bintray.fetchSecrets(it)
             println("Done.")
-            setWindowsEnv(it.userSecretName, bintrayUser)
-            setWindowsEnv(it.keySecretName, bintrayKey)
+            secrets.forEach { s -> setWindowsEnv(s.name, s.value) }
         }
 
         sonatype?.let {
             print("Fetching user token and API key from OSS Sonatype...")
-            val sonatypeUser = it.user.ifEmpty { githubUser }
-            val sonatypeKeys = OssSonatype.fetchKeys(sonatypeUser, it.password)
+            val secrets = OssSonatype.fetchSecrets(it)
             println("Done.")
-            setWindowsEnv(it.userTokenSecretName, sonatypeKeys.userToken)
-            setWindowsEnv(it.keySecretName, sonatypeKeys.apiKey)
+            secrets.forEach { s -> setWindowsEnv(s.name, s.value) }
         }
 
         rawSecrets.forEach { (key, value) ->
