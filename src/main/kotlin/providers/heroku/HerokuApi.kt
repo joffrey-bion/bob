@@ -52,7 +52,6 @@ object HerokuApi {
     }
 
     private suspend fun HttpClient.oAuthLogin(): String {
-//        val oAuthCode = oAuthWithCallbackServer(url = "https://auth.heroku.com/login", callbackUriParamName = "state")
         val response: HttpResponse = get("https://auth.heroku.com/login?state=https%3A%2F%2Fdashboard.heroku.com%2Fauth%2Fheroku%2Fcallback") {
             accept(ContentType.Text.Html)
         }
