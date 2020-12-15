@@ -1,6 +1,5 @@
 # github-secrets-wizard
 
-[![Bintray](https://img.shields.io/bintray/v/joffrey-bion/applications/github-secrets-wizard.svg)](https://bintray.com/joffrey-bion/applications/github-secrets-wizard/_latestVersion)
 [![Github Build](https://img.shields.io/github/workflow/status/joffrey-bion/github-secrets-wizard/CI-CD?label=build&logo=github)](https://github.com/joffrey-bion/github-secrets-wizard/actions?query=workflow%3A%22CI-CD%22)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/joffrey-bion/github-secrets-wizard/blob/master/LICENSE)
 
