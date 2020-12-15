@@ -32,8 +32,8 @@ jobs:
           path: ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle-wrapper.properties') }}
 
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Build distribution with Gradle
+        run: ./gradlew installDist
 
       # technically optional, brings support for more platform to Docker Buildx
       - name: Set up QEMU
