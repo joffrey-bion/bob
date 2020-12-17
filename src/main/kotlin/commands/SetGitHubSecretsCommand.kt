@@ -85,14 +85,13 @@ class SetGitHubSecretsCommand : CliktCommand(
             rawSecrets.forEach { (key, value) -> add(Secret(key, value)) }
         }
 
-        print("Setting secrets in GitHub repository $githubRepo...")
+        println("Setting secrets in GitHub repository $githubRepo...")
         if (dryRun) {
             println("DRY-RUN: would have set the following secrets:")
             secrets.forEach { println("${it.name}=${it.value}") }
         } else {
             secrets.forEach { gitHub.setSecret(it, repo) }
         }
-        println("Done.")
     }
 
     private suspend fun setupAndGetToken(): String {

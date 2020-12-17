@@ -1,5 +1,6 @@
 package org.hildan.github.secrets.wizard
 
+import com.github.ajalt.clikt.output.TermUi.echo
 import com.goterl.lazycode.lazysodium.LazySodiumJava
 import com.goterl.lazycode.lazysodium.SodiumJava
 import com.goterl.lazycode.lazysodium.utils.Key
@@ -39,8 +40,6 @@ data class GitHub(
     private val lazySodium = LazySodiumJava(SodiumJava())
 
     suspend fun setSecret(secret: Secret, repo: GitHubRepo) {
-        println("Setting secret ${secret.name}...")
-
         val publicKey = fetchPublicKey(repo)
         val encryptedHexa = lazySodium.cryptoBoxSealEasy(secret.value, publicKey.asLibsodiumKey())
         ghClient.put<Unit> {
@@ -48,6 +47,7 @@ data class GitHub(
             contentType(ContentType.Application.Json)
             body = GitHubCreateSecretRequest(publicKey.id, encryptedHexa.hexadecimalToBase64())
         }
+        echo("Secret ${secret.name} set")
     }
 
     private suspend fun fetchPublicKey(repo: GitHubRepo): GitHubPublicKeyResponse = ghClient.get {
