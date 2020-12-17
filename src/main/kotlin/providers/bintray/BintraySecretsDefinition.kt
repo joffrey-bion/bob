@@ -1,7 +1,6 @@
 package org.hildan.github.secrets.wizard.providers.bintray
 
 import com.github.ajalt.clikt.output.TermUi
-import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.option
@@ -11,49 +10,55 @@ import io.ktor.http.*
 import org.hildan.github.secrets.wizard.http.httpFormUrlEncoded
 import org.hildan.github.secrets.wizard.http.ktorClient
 import org.hildan.github.secrets.wizard.providers.Secret
+import org.hildan.github.secrets.wizard.providers.SecretOptionGroup
 import org.hildan.github.secrets.wizard.providers.SecretProvider
 import java.net.URLEncoder
 
-class BintrayOptions(val defaultUserLazy: () -> String?) : OptionGroup(name = "Options for Bintray secrets") {
+open class BintraySecretsDefinition : SecretOptionGroup(
+    providerName = "Bintray",
+    switchName = "--bintray",
+) {
+    override val secretNames: List<String>
+        get() = listOf(userSecretName, keySecretName)
 
-    val user by option(
-        "--bintray-login",
-        help = "Your Bintray login (defaults to the GitHub username)"
-    ).defaultLazy {
-        val defaultUser = defaultUserLazy()
-        TermUi.prompt("Your Bintray login", default = defaultUser) ?: defaultUser ?: error("Bintray user required")
-    }
-
-    val password by option("--bintray-password", help = "Your Bintray password").prompt(
-        text = "Your Bintray password",
-        hideInput = true,
-    )
-
-    val userSecretName by option(
+    protected val userSecretName by option(
         "--bintray-user-secret-name",
         help = "The name of the secret variable holding the Bintray username",
     ).default("BINTRAY_USER")
 
-    val keySecretName by option(
+    protected val keySecretName by option(
         "--bintray-key-secret-name",
         help = "The name of the secret variable holding the Bintray API key",
     ).default("BINTRAY_KEY")
 }
 
-object Bintray : SecretProvider<BintrayOptions> {
+class BintrayProvider(val defaultUserLazy: () -> String?) : BintraySecretsDefinition(), SecretProvider {
 
-    override val name: String = "Bintray"
+    private val user by option(
+        "--bintray-login",
+        help = "Your Bintray login",
+        envvar = "BINTRAY_USER",
+    ).defaultLazy {
+        val defaultUser = defaultUserLazy()
+        TermUi.prompt("Your Bintray login", default = defaultUser) ?: defaultUser ?: error("Bintray user required")
+    }
 
-    override fun options(defaultUserLazy: () -> String?) = BintrayOptions(defaultUserLazy)
+    private val password by option(
+        "--bintray-password",
+        help = "Your Bintray password"
+    ).prompt(
+        text = "Your Bintray password",
+        hideInput = true,
+    )
 
-    override suspend fun fetchSecrets(options: BintrayOptions): List<Secret> = with(options) {
+    override suspend fun fetchSecrets(): List<Secret> {
         val apiKey = fetchApiKey(user, password)
         val userSecret = Secret(userSecretName, user)
         val apiKeySecret = Secret(keySecretName, apiKey)
-        listOf(userSecret, apiKeySecret)
+        return listOf(userSecret, apiKeySecret)
     }
 
-    suspend fun fetchApiKey(login: String, password: String): String {
+    private suspend fun fetchApiKey(login: String, password: String): String {
         val client = ktorClient()
 
         // Login to store authentication cookie

@@ -1,7 +1,6 @@
 package org.hildan.github.secrets.wizard.providers.sonatype
 
 import com.github.ajalt.clikt.output.TermUi
-import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.option
@@ -14,41 +13,49 @@ import org.hildan.github.secrets.wizard.http.basicAuthHeader
 import org.hildan.github.secrets.wizard.http.ktorClient
 import org.hildan.github.secrets.wizard.http.toBase64
 import org.hildan.github.secrets.wizard.providers.Secret
+import org.hildan.github.secrets.wizard.providers.SecretOptionGroup
 import org.hildan.github.secrets.wizard.providers.SecretProvider
 
-class SonatypeOptions(val defaultUserLazy: () -> String?) : OptionGroup(name = "Options for OSS Sonatype secrets") {
+open class SonatypeSecretsDefinition : SecretOptionGroup(
+    providerName = "OSS Sonatype",
+    switchName = "--sonatype",
+) {
+    override val secretNames: List<String>
+        get() = listOf(userTokenSecretName, keySecretName)
 
-    val user by option("--ossrh-login", help = "Your OSS Sonatype login (defaults to the GitHub username)").defaultLazy {
-        val defaultUser = defaultUserLazy()
-        TermUi.prompt("Your OSS Sonatype login", default = defaultUser) ?: defaultUser ?: error("OSS Sonatype user required")
-    }
-
-    val password by option("--ossrh-password", help = "Your OSS Sonatype password").prompt(
-        text = "Your OSS Sonatype password",
-        hideInput = true,
-    )
-
-    val userTokenSecretName by option(
+    protected val userTokenSecretName by option(
         "--ossrh-user-secret-name",
         help = "The name of the secret variable holding the OSS Sonatype user token",
     ).default("OSSRH_USER_TOKEN")
 
-    val keySecretName by option(
+    protected val keySecretName by option(
         "--ossrh-key-secret-name",
         help = "The name of the secret variable holding the OSS Sonatype API key",
     ).default("OSSRH_KEY")
 }
 
-object OssSonatype : SecretProvider<SonatypeOptions> {
+class SonatypeProvider(val defaultUserLazy: () -> String?) : SonatypeSecretsDefinition(), SecretProvider {
 
-    override val name: String = "OSS Sonatype"
+    private val user by option(
+        "--ossrh-login",
+        help = "Your OSS Sonatype login (defaults to the GitHub username)",
+    ).defaultLazy {
+        val defaultUser = defaultUserLazy()
+        TermUi.prompt("Your OSS Sonatype login", default = defaultUser) ?: defaultUser ?: error("OSS Sonatype user required")
+    }
 
-    override fun options(defaultUserLazy: () -> String?) = SonatypeOptions(defaultUserLazy)
+    private val password by option(
+        "--ossrh-password",
+        help = "Your OSS Sonatype password",
+    ).prompt(
+        text = "Your OSS Sonatype password",
+        hideInput = true,
+    )
 
-    override suspend fun fetchSecrets(options: SonatypeOptions): List<Secret> {
-        val sonatypeKeys = fetchKeys(options.user, options.password)
-        val userSecret = Secret(options.userTokenSecretName, sonatypeKeys.userToken)
-        val keySecret = Secret(options.keySecretName, sonatypeKeys.apiKey)
+    override suspend fun fetchSecrets(): List<Secret> {
+        val sonatypeKeys = fetchKeys(user, password)
+        val userSecret = Secret(userTokenSecretName, sonatypeKeys.userToken)
+        val keySecret = Secret(keySecretName, sonatypeKeys.apiKey)
         return listOf(userSecret, keySecret)
     }
 

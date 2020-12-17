@@ -10,16 +10,18 @@ import org.hildan.github.secrets.wizard.GitHub
 import org.hildan.github.secrets.wizard.GitHubRepo
 import org.hildan.github.secrets.wizard.browseIfSupported
 import org.hildan.github.secrets.wizard.providers.Secret
-import org.hildan.github.secrets.wizard.providers.bintray.Bintray
-import org.hildan.github.secrets.wizard.providers.heroku.Heroku
-import org.hildan.github.secrets.wizard.providers.sonatype.OssSonatype
+import org.hildan.github.secrets.wizard.providers.SecretGroupDefinition
+import org.hildan.github.secrets.wizard.providers.bintray.BintraySecretsDefinition
+import org.hildan.github.secrets.wizard.providers.heroku.HerokuSecretsDefinition
+import org.hildan.github.secrets.wizard.providers.secretsDefinitionGroupSwitch
+import org.hildan.github.secrets.wizard.providers.sonatype.SonatypeSecretsDefinition
 import org.hildan.github.secrets.wizard.setWindowsEnv
 import kotlin.system.exitProcess
 
 const val GITHUB_USER = "GITHUB_USER"
 private const val GITHUB_TOKEN = "GITHUB_TOKEN"
 
-class GitHubSecretCommand : CliktCommand(
+class SetGitHubSecretsCommand : CliktCommand(
     name = "set-github-secrets",
     help = "Sets repository secrets on GitHub by fetching keys from various providers (Bintray, OSS Sonatype, ...)",
 ) {
@@ -48,62 +50,49 @@ class GitHubSecretCommand : CliktCommand(
     }
 
     private val dryRun by option(
-        help = "Enables dry-run mode. In this mode, the secrets won't actually be set on the repository, but the keys" +
-            " will be retrieved from providers and the GitHub login will happen as well."
+        help = "Enables dry-run mode. In this mode, the secrets won't actually be set on the repository, but the " +
+            "secrets will be retrieved from the source and printed.",
     ).flag()
 
     private val personalToken by option(help = "Enables setting the Personal Access Token as a repo secret")
         .groupSwitch("--set-pat" to GitHubPersonalTokenOptions())
 
-    private val bintray by option(help = "Enables Bintray secrets setup")
-        .groupSwitch("--bintray" to Bintray.options { githubUser })
-
-    private val sonatype by option(help = "Enables OSS Sonatype (Maven Central) secrets setup")
-        .groupSwitch("--sonatype" to OssSonatype.options { githubUser })
-
-    private val heroku by option(help = "Enables Heroku secrets setup")
-        .groupSwitch("--heroku" to Heroku.options { githubUser })
-
     private val rawSecrets: Map<String, String> by option(
         "-s",
         "--secret",
-        help = "A raw secret to set, in the form KEY=VALUE (this option can be repeated multiple times)"
+        help = "A raw secret to set, in the form KEY=VALUE (this option can be repeated multiple times)",
     ).associate()
 
-    override fun run() = runBlocking {
-        println("Setting secrets in GitHub repository $githubRepo")
+    private val bintray by secretsDefinitionGroupSwitch(BintraySecretsDefinition())
 
-        val gitHub = GitHub.login(githubToken, dryRun = dryRun)
+    private val heroku by secretsDefinitionGroupSwitch(HerokuSecretsDefinition())
+
+    private val sonatype by secretsDefinitionGroupSwitch(SonatypeSecretsDefinition())
+
+    private val definitions: List<SecretGroupDefinition>
+        get() = listOfNotNull(bintray, heroku, sonatype)
+
+    @OptIn(ExperimentalStdlibApi::class)
+    override fun run() = runBlocking {
+        val gitHub = GitHub.login(githubToken)
         val repo = GitHubRepo(githubUser, githubRepo)
 
-        personalToken?.let {
-            gitHub.setSecret(Secret(it.secretName, githubToken), repo)
+        val secrets = buildList {
+            personalToken?.let { add(Secret(it.secretName, githubToken)) }
+
+            addAll(definitions.flatMap { it.secretNames.map { s -> Secret(s, System.getenv(s)) } })
+
+            rawSecrets.forEach { (key, value) -> add(Secret(key, value)) }
         }
 
-        bintray?.let {
-            print("Fetching API key from Bintray...")
-            val secrets = Bintray.fetchSecrets(it)
-            println("Done.")
-            secrets.forEach { s -> gitHub.setSecret(s, repo) }
+        print("Setting secrets in GitHub repository $githubRepo...")
+        if (dryRun) {
+            println("DRY-RUN: would have set the following secrets:")
+            secrets.forEach { println("${it.name}=${it.value}") }
+        } else {
+            secrets.forEach { gitHub.setSecret(it, repo) }
         }
-
-        sonatype?.let {
-            print("Fetching user token and API key from OSS Sonatype...")
-            val secrets = OssSonatype.fetchSecrets(it)
-            println("Done.")
-            secrets.forEach { s -> gitHub.setSecret(s, repo) }
-        }
-
-        heroku?.let {
-            print("Fetching API key from Heroku...")
-            val secrets = Heroku.fetchSecrets(it)
-            println("Done.")
-            secrets.forEach { s -> gitHub.setSecret(s, repo) }
-        }
-
-        rawSecrets.forEach { (key, value) ->
-            gitHub.setSecret(Secret(key, value), repo)
-        }
+        println("Done.")
     }
 
     private suspend fun setupAndGetToken(): String {
