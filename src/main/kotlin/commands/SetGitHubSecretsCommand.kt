@@ -53,6 +53,10 @@ class SetGitHubSecretsCommand : CliktCommand(
         .help("A raw secret to set, in the form KEY=VALUE (this option can be repeated multiple times)")
         .associate()
 
+    private val envSecrets: List<String> by option("-e", "--env")
+        .help("A secret read from an environment variable of the same name (can be repeated multiple times)")
+        .multiple()
+
     private val stdinSecret: String? by option( "--stdin")
         .help("The name of a secret, the value of which will be read from stdin")
 
@@ -76,6 +80,7 @@ class SetGitHubSecretsCommand : CliktCommand(
             addAll(definitions.flatMap { it.secretNames.map { s -> Secret(s, System.getenv(s)) } })
 
             rawSecrets.forEach { (key, value) -> add(Secret(key, value)) }
+            envSecrets.forEach { key -> add(Secret(key, System.getenv(key) ?: error("Env var $key not found"))) }
 
             stdinSecret?.let { key -> add(Secret(key, value = readStdIn())) }
         }
