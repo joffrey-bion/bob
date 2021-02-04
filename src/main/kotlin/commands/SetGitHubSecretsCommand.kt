@@ -16,6 +16,7 @@ import org.hildan.github.secrets.wizard.providers.heroku.HerokuSecretsDefinition
 import org.hildan.github.secrets.wizard.providers.secretsDefinitionGroupSwitch
 import org.hildan.github.secrets.wizard.providers.sonatype.SonatypeSecretsDefinition
 import org.hildan.github.secrets.wizard.setWindowsEnv
+import java.util.*
 import kotlin.system.exitProcess
 
 const val GITHUB_USER = "GITHUB_USER"
@@ -25,29 +26,20 @@ class SetGitHubSecretsCommand : CliktCommand(
     name = "set-github-secrets",
     help = "Sets repository secrets on GitHub by fetching keys from various providers (Bintray, OSS Sonatype, ...)",
 ) {
-    private val githubRepo by option(
-        "-r",
-        "--github-repo",
-        help = "The GitHub repository to set secrets for",
-    ).required()
+    private val githubRepo by option("-r", "--github-repo")
+        .help("The GitHub repository to set secrets for")
+        .required()
 
-    private val githubUser by option(
-        "-u",
-        "--github-user",
-        envvar = GITHUB_USER,
-        help = "Your GitHub username or organization. " +
-            "Defaults to the $GITHUB_USER environment variable, or prompts for a value.",
-    ).prompt("Your GitHub username or organization")
+    private val githubUser by option("-u", "--github-user", envvar = GITHUB_USER)
+        .help("Your GitHub username or organization. Defaults to the $GITHUB_USER environment variable, or prompts for a value.")
+        .prompt("Your GitHub username or organization")
 
-    private val githubToken by option(
-        "-t",
-        "--github-token",
-        envvar = GITHUB_TOKEN,
-        help = "The token to use to authenticate with GitHub (GitHub doesn't allow password authentication anymore). " +
-            "Defaults to the $GITHUB_TOKEN environment variable, or triggers the creation of a new personal token.",
-    ).defaultLazy {
-        runBlocking { setupAndGetToken() }
-    }
+    private val githubToken by option("-t", "--github-token", envvar = GITHUB_TOKEN)
+        .help("The token to use to authenticate with GitHub (GitHub doesn't allow password authentication anymore). " +
+            "Defaults to the $GITHUB_TOKEN environment variable, or triggers the creation of a new personal token.")
+        .defaultLazy {
+            runBlocking { setupAndGetToken() }
+        }
 
     private val dryRun by option(
         help = "Enables dry-run mode. In this mode, the secrets won't actually be set on the repository, but the " +
@@ -57,11 +49,12 @@ class SetGitHubSecretsCommand : CliktCommand(
     private val personalToken by option(help = "Enables setting the Personal Access Token as a repo secret")
         .groupSwitch("--set-pat" to GitHubPersonalTokenOptions())
 
-    private val rawSecrets: Map<String, String> by option(
-        "-s",
-        "--secret",
-        help = "A raw secret to set, in the form KEY=VALUE (this option can be repeated multiple times)",
-    ).associate()
+    private val rawSecrets: Map<String, String> by option("-s", "--secret")
+        .help("A raw secret to set, in the form KEY=VALUE (this option can be repeated multiple times)")
+        .associate()
+
+    private val stdinSecret: String? by option( "--stdin")
+        .help("The name of a secret, the value of which will be read from stdin")
 
     private val bintray by secretsDefinitionGroupSwitch(BintraySecretsDefinition())
 
@@ -83,6 +76,8 @@ class SetGitHubSecretsCommand : CliktCommand(
             addAll(definitions.flatMap { it.secretNames.map { s -> Secret(s, System.getenv(s)) } })
 
             rawSecrets.forEach { (key, value) -> add(Secret(key, value)) }
+
+            stdinSecret?.let { key -> add(Secret(key, value = readStdIn())) }
         }
 
         println("Setting secrets in GitHub repository $githubRepo...")
@@ -118,6 +113,13 @@ class SetGitHubSecretsCommand : CliktCommand(
         if (shouldStore) {
             setWindowsEnv(GITHUB_TOKEN, token)
         }
+    }
+}
+
+private fun readStdIn(): String = buildString {
+    val sc = Scanner(System.`in`)
+    while (sc.hasNextLine()) {
+        append(sc.nextLine())
     }
 }
 
