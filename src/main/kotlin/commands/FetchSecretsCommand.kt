@@ -51,7 +51,7 @@ class FetchSecretsCommand : CliktCommand(
     }
 
     private suspend fun setWindowsEnv(secrets: List<Secret>) {
-        if ("windows" !in System.getProperty("os.name") ?: "") {
+        if ("windows" !in (System.getProperty("os.name") ?: "")) {
             throw PrintMessage("ENV storage is only supported on Windows", error = true)
         }
         secrets.forEach { setWindowsEnv(it.name, it.value) }

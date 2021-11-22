@@ -69,7 +69,6 @@ class SetGitHubSecretsCommand : CliktCommand(
     private val definitions: List<SecretGroupDefinition>
         get() = listOfNotNull(bintray, heroku, sonatype)
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun run() = runBlocking {
         val gitHub = GitHub.login(githubToken)
         val repo = GitHubRepo(githubUser, githubRepo)
