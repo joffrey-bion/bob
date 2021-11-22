@@ -15,7 +15,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1")
 
-    implementation("com.github.ajalt.clikt:clikt:3.0.0")
+    implementation("com.github.ajalt.clikt:clikt:3.3.0")
 
     // the apache client is the only one supporting redirects
     implementation("io.ktor:ktor-client-apache:1.4.0")
