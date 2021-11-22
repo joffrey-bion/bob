@@ -11,6 +11,7 @@ import org.hildan.bob.providers.SecretProvider
 import org.hildan.bob.providers.heroku.HerokuProvider
 import org.hildan.bob.providers.secretProviderGroupSwitch
 import org.hildan.bob.providers.sonatype.SonatypeProvider
+import org.hildan.bob.utils.OS
 import org.hildan.bob.utils.setWindowsEnv
 
 class FetchSecretsCommand : CliktCommand(
@@ -48,7 +49,7 @@ class FetchSecretsCommand : CliktCommand(
     }
 
     private suspend fun setWindowsEnv(secrets: List<Secret>) {
-        if ("windows" !in (System.getProperty("os.name") ?: "")) {
+        if (!OS.isWindows) {
             throw PrintMessage("ENV storage is only supported on Windows", error = true)
         }
         secrets.forEach { setWindowsEnv(it.name, it.value) }

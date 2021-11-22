@@ -14,6 +14,7 @@ import org.hildan.bob.providers.SecretGroupDefinition
 import org.hildan.bob.providers.heroku.HerokuSecretsDefinition
 import org.hildan.bob.providers.secretsDefinitionGroupSwitch
 import org.hildan.bob.providers.sonatype.SonatypeSecretsDefinition
+import org.hildan.bob.utils.OS
 import org.hildan.bob.utils.setWindowsEnv
 import java.util.*
 import kotlin.system.exitProcess
@@ -103,7 +104,7 @@ class SetGitHubSecretsCommand : CliktCommand(
     }
 
     private suspend fun askAndStore(token: String) {
-        if ("Windows" !in System.getProperty("os.name")) {
+        if (!OS.isWindows) {
             return // this is only supported on windows
         }
         val shouldStore = TermUi.confirm(
