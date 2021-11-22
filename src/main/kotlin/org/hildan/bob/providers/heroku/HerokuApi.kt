@@ -9,18 +9,16 @@ import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.hildan.bob.http.bearerAuthHeader
+import org.hildan.bob.http.http
 import org.hildan.bob.http.httpFormUrlEncoded
-import org.hildan.bob.http.ktorClient
 
 object HerokuApi {
 
     suspend fun fetchApiKey(login: String, password: String): String {
-        val client = ktorClient()
+        http.setupCookiesWithCredentialsLogin(login, password)
+        val token = http.oAuthLogin()
 
-        client.setupCookiesWithCredentialsLogin(login, password)
-        val token = client.oAuthLogin()
-
-        val response = client.get<AuthResponse>("https://api.heroku.com/oauth/authorizations/~?name=~") {
+        val response = http.get<AuthResponse>("https://api.heroku.com/oauth/authorizations/~?name=~") {
             accept(ContentType.parse("application/vnd.heroku+json; version=3"))
             bearerAuthHeader(token)
         }

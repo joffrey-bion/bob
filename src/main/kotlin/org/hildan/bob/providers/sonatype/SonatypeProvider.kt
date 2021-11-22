@@ -10,7 +10,7 @@ import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.hildan.bob.http.basicAuthHeader
-import org.hildan.bob.http.ktorClient
+import org.hildan.bob.http.http
 import org.hildan.bob.http.toBase64
 import org.hildan.bob.providers.Secret
 import org.hildan.bob.providers.SecretOptionGroup
@@ -60,22 +60,19 @@ class SonatypeProvider(val defaultUserLazy: () -> String?) : SonatypeSecretsDefi
     }
 
     private suspend fun fetchKeys(login: String, password: String): SonatypeKeys {
-        val client = ktorClient()
-
-        client.get<String>("https://oss.sonatype.org/service/local/authentication/login") {
+        http.get<String>("https://oss.sonatype.org/service/local/authentication/login") {
             accept(ContentType.Application.Json)
             basicAuthHeader(login, password)
         }
 
-        val loginResponse = client.post<SonatypeTokenResponse>(
-            "https://oss.sonatype.org/service/siesta/wonderland/authenticate"
-        ) {
-            accept(ContentType.Application.Json)
-            contentType(ContentType.Application.Json)
-            body = SonatypeTokenRequest(login.toBase64(), password.toBase64())
-        }
+        val loginResponse =
+            http.post<SonatypeTokenResponse>("https://oss.sonatype.org/service/siesta/wonderland/authenticate") {
+                accept(ContentType.Application.Json)
+                contentType(ContentType.Application.Json)
+                body = SonatypeTokenRequest(login.toBase64(), password.toBase64())
+            }
 
-        return client.get("https://oss.sonatype.org/service/siesta/usertoken/current") {
+        return http.get("https://oss.sonatype.org/service/siesta/usertoken/current") {
             contentType(ContentType.Application.Json)
             header("x-nexus-ui", "true")
             header("x-nx-authticket", loginResponse.token)
