@@ -27,7 +27,7 @@ dependencies {
     implementation("com.goterl:lazysodium-java:5.1.1")
     implementation("net.java.dev.jna:jna:5.10.0")
 
-    implementation("com.google.oauth-client:google-oauth-client-jetty:1.31.2")
+    implementation("com.google.oauth-client:google-oauth-client-jetty:1.32.1")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
