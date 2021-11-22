@@ -1,11 +1,9 @@
-package org.hildan.bob.providers.heroku
+package org.hildan.bob.secrets
 
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
-import org.hildan.bob.providers.Secret
-import org.hildan.bob.providers.SecretOptionGroup
-import org.hildan.bob.providers.SecretProvider
+import org.hildan.bob.services.heroku.Heroku
 
 open class HerokuSecretsDefinition : SecretOptionGroup(
     providerName = "Heroku",
@@ -30,7 +28,7 @@ class HerokuProvider : HerokuSecretsDefinition(), SecretProvider {
     )
 
     override suspend fun fetchSecrets(): List<Secret> {
-        val apiKey = HerokuApi.fetchApiKey(email, password)
+        val apiKey = Heroku.fetchApiKey(email, password)
         val secret = Secret(keySecretName, apiKey)
         return listOf(secret)
     }

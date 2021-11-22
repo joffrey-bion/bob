@@ -1,4 +1,4 @@
-package org.hildan.bob.providers
+package org.hildan.bob.secrets
 
 import com.github.ajalt.clikt.core.ParameterHolder
 import com.github.ajalt.clikt.parameters.groups.OptionGroup

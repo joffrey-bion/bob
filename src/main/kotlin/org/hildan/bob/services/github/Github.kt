@@ -1,4 +1,4 @@
-package org.hildan.bob
+package org.hildan.bob.services.github
 
 import com.github.ajalt.clikt.output.TermUi.echo
 import com.goterl.lazysodium.LazySodiumJava
@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 import org.hildan.bob.http.OAuth
 import org.hildan.bob.http.ktorClient
 import org.hildan.bob.http.tokenAuthHeader
-import org.hildan.bob.providers.Secret
+import org.hildan.bob.secrets.Secret
 import java.util.*
 
 data class GitHubRepo(

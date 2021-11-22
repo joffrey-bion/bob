@@ -1,4 +1,4 @@
-package org.hildan.bob.providers.heroku
+package org.hildan.bob.services.heroku
 
 import com.github.ajalt.clikt.core.PrintMessage
 import io.ktor.client.*
@@ -12,7 +12,7 @@ import org.hildan.bob.http.bearerAuthHeader
 import org.hildan.bob.http.http
 import org.hildan.bob.http.httpFormUrlEncoded
 
-object HerokuApi {
+object Heroku {
 
     suspend fun fetchApiKey(login: String, password: String): String {
         http.setupCookiesWithCredentialsLogin(login, password)

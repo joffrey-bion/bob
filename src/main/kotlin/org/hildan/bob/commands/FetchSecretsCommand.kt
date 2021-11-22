@@ -6,11 +6,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import kotlinx.coroutines.runBlocking
-import org.hildan.bob.providers.Secret
-import org.hildan.bob.providers.SecretProvider
-import org.hildan.bob.providers.heroku.HerokuProvider
-import org.hildan.bob.providers.secretProviderGroupSwitch
-import org.hildan.bob.providers.sonatype.SonatypeProvider
+import org.hildan.bob.secrets.*
 import org.hildan.bob.utils.OS
 import org.hildan.bob.utils.setWindowsEnv
 

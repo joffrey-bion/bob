@@ -6,14 +6,10 @@ import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.groupSwitch
 import com.github.ajalt.clikt.parameters.options.*
 import kotlinx.coroutines.runBlocking
-import org.hildan.bob.GitHub
-import org.hildan.bob.GitHubRepo
+import org.hildan.bob.services.github.GitHub
+import org.hildan.bob.services.github.GitHubRepo
+import org.hildan.bob.secrets.*
 import org.hildan.bob.utils.browseIfSupported
-import org.hildan.bob.providers.Secret
-import org.hildan.bob.providers.SecretGroupDefinition
-import org.hildan.bob.providers.heroku.HerokuSecretsDefinition
-import org.hildan.bob.providers.secretsDefinitionGroupSwitch
-import org.hildan.bob.providers.sonatype.SonatypeSecretsDefinition
 import org.hildan.bob.utils.OS
 import org.hildan.bob.utils.setWindowsEnv
 import java.util.*

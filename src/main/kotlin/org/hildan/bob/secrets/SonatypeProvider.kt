@@ -1,20 +1,11 @@
-package org.hildan.bob.providers.sonatype
+package org.hildan.bob.secrets
 
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
-import io.ktor.client.request.*
-import io.ktor.http.*
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import org.hildan.bob.http.basicAuthHeader
-import org.hildan.bob.http.http
-import org.hildan.bob.http.toBase64
-import org.hildan.bob.providers.Secret
-import org.hildan.bob.providers.SecretOptionGroup
-import org.hildan.bob.providers.SecretProvider
+import org.hildan.bob.services.sonatype.Sonatype
 
 open class SonatypeSecretsDefinition : SecretOptionGroup(
     providerName = "OSS Sonatype",
@@ -53,51 +44,9 @@ class SonatypeProvider(val defaultUserLazy: () -> String?) : SonatypeSecretsDefi
     )
 
     override suspend fun fetchSecrets(): List<Secret> {
-        val sonatypeKeys = fetchKeys(user, password)
+        val sonatypeKeys = Sonatype.fetchKeys(user, password)
         val userSecret = Secret(userTokenSecretName, sonatypeKeys.userToken)
         val keySecret = Secret(keySecretName, sonatypeKeys.apiKey)
         return listOf(userSecret, keySecret)
     }
-
-    private suspend fun fetchKeys(login: String, password: String): SonatypeKeys {
-        http.get<String>("https://oss.sonatype.org/service/local/authentication/login") {
-            accept(ContentType.Application.Json)
-            basicAuthHeader(login, password)
-        }
-
-        val loginResponse =
-            http.post<SonatypeTokenResponse>("https://oss.sonatype.org/service/siesta/wonderland/authenticate") {
-                accept(ContentType.Application.Json)
-                contentType(ContentType.Application.Json)
-                body = SonatypeTokenRequest(login.toBase64(), password.toBase64())
-            }
-
-        return http.get("https://oss.sonatype.org/service/siesta/usertoken/current") {
-            contentType(ContentType.Application.Json)
-            header("x-nexus-ui", "true")
-            header("x-nx-authticket", loginResponse.token)
-        }
-    }
 }
-
-@Serializable
-data class SonatypeTokenRequest(
-    @SerialName("u")
-    val user: String,
-    @SerialName("p")
-    val password: String,
-)
-
-@Serializable
-data class SonatypeTokenResponse(
-    @SerialName("t")
-    val token: String,
-)
-
-@Serializable
-data class SonatypeKeys(
-    @SerialName("nameCode")
-    val userToken: String,
-    @SerialName("passCode")
-    val apiKey: String,
-)
