@@ -8,7 +8,6 @@ import com.github.ajalt.clikt.parameters.types.enum
 import kotlinx.coroutines.runBlocking
 import org.hildan.bob.providers.Secret
 import org.hildan.bob.providers.SecretProvider
-import org.hildan.bob.providers.bintray.BintrayProvider
 import org.hildan.bob.providers.heroku.HerokuProvider
 import org.hildan.bob.providers.secretProviderGroupSwitch
 import org.hildan.bob.providers.sonatype.SonatypeProvider
@@ -24,14 +23,12 @@ class FetchSecretsCommand : CliktCommand(
         help = "The default username to use when the username is not provided for one provider"
     )
 
-    private val bintray by secretProviderGroupSwitch(BintrayProvider { defaultUser })
-
     private val heroku by secretProviderGroupSwitch(HerokuProvider())
 
     private val sonatype by secretProviderGroupSwitch(SonatypeProvider { defaultUser })
 
     private val providers: List<SecretProvider>
-        get() = listOfNotNull(bintray, heroku, sonatype)
+        get() = listOfNotNull(heroku, sonatype)
 
     private val destination by option(
         "-o",

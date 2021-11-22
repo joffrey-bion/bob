@@ -11,7 +11,6 @@ import org.hildan.bob.GitHubRepo
 import org.hildan.bob.utils.browseIfSupported
 import org.hildan.bob.providers.Secret
 import org.hildan.bob.providers.SecretGroupDefinition
-import org.hildan.bob.providers.bintray.BintraySecretsDefinition
 import org.hildan.bob.providers.heroku.HerokuSecretsDefinition
 import org.hildan.bob.providers.secretsDefinitionGroupSwitch
 import org.hildan.bob.providers.sonatype.SonatypeSecretsDefinition
@@ -60,14 +59,12 @@ class SetGitHubSecretsCommand : CliktCommand(
     private val stdinSecret: String? by option( "--stdin")
         .help("The name of a secret, the value of which will be read from stdin")
 
-    private val bintray by secretsDefinitionGroupSwitch(BintraySecretsDefinition())
-
     private val heroku by secretsDefinitionGroupSwitch(HerokuSecretsDefinition())
 
     private val sonatype by secretsDefinitionGroupSwitch(SonatypeSecretsDefinition())
 
     private val definitions: List<SecretGroupDefinition>
-        get() = listOfNotNull(bintray, heroku, sonatype)
+        get() = listOfNotNull(heroku, sonatype)
 
     override fun run() = runBlocking {
         val gitHub = GitHub.login(githubToken)
