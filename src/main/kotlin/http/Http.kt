@@ -21,7 +21,7 @@ fun ktorClient(
         serializer = KotlinxSerializer(Json { ignoreUnknownKeys = true })
     }
     install(HttpCookies) {
-        storage = UnencodedCookieStorage(AcceptAllCookiesStorage())
+        storage = AcceptAllCookiesStorage()
         useDefaultTransformers = false
     }
     if (logging) {
@@ -31,13 +31,6 @@ fun ktorClient(
         }
     }
     configure()
-}
-
-// Prevents incorrect URL-encoding of cookies
-// https://youtrack.jetbrains.com/issue/KTOR-917
-private class UnencodedCookieStorage(private val cookiesStorage: CookiesStorage) : CookiesStorage by cookiesStorage {
-    override suspend fun get(requestUrl: Url): List<Cookie> =
-        cookiesStorage.get(requestUrl).map { it.copy(encoding = CookieEncoding.DQUOTES) }
 }
 
 fun HttpRequestBuilder.basicAuthHeader(login: String, password: String) {

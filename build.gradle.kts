@@ -19,9 +19,10 @@ dependencies {
     implementation("com.github.ajalt.clikt:clikt:3.3.0")
 
     // the apache client is the only one supporting redirects
-    implementation("io.ktor:ktor-client-apache:1.4.0")
-    implementation("io.ktor:ktor-client-serialization-jvm:1.4.0")
-    implementation("io.ktor:ktor-client-logging-jvm:1.4.0")
+    val ktorVersion = "1.6.4"
+    implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-serialization-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
     implementation("org.slf4j:slf4j-simple:1.8.0-beta4")
 
     // necessary for encryption of secrets for GitHub

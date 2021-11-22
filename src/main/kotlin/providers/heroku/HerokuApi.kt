@@ -6,7 +6,6 @@ import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.hildan.github.secrets.wizard.http.bearerAuthHeader
@@ -15,7 +14,6 @@ import org.hildan.github.secrets.wizard.http.ktorClient
 
 object HerokuApi {
 
-    @OptIn(KtorExperimentalAPI::class)
     suspend fun fetchApiKey(login: String, password: String): String {
         val client = ktorClient()
 
