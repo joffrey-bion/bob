@@ -1,7 +1,7 @@
 package org.hildan.bob.http
 
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
-import org.hildan.bob.browseIfSupported
+import org.hildan.bob.utils.browseIfSupported
 
 object OAuth {
 

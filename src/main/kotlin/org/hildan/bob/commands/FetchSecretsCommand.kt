@@ -12,7 +12,7 @@ import org.hildan.bob.providers.bintray.BintrayProvider
 import org.hildan.bob.providers.heroku.HerokuProvider
 import org.hildan.bob.providers.secretProviderGroupSwitch
 import org.hildan.bob.providers.sonatype.SonatypeProvider
-import org.hildan.bob.setWindowsEnv
+import org.hildan.bob.utils.setWindowsEnv
 
 class FetchSecretsCommand : CliktCommand(
     name = "fetch-secrets",
