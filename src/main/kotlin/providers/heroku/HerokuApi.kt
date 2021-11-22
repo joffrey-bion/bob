@@ -1,4 +1,4 @@
-package org.hildan.github.secrets.wizard.providers.heroku
+package org.hildan.bob.providers.heroku
 
 import com.github.ajalt.clikt.core.PrintMessage
 import io.ktor.client.*
@@ -8,9 +8,9 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.hildan.github.secrets.wizard.http.bearerAuthHeader
-import org.hildan.github.secrets.wizard.http.httpFormUrlEncoded
-import org.hildan.github.secrets.wizard.http.ktorClient
+import org.hildan.bob.http.bearerAuthHeader
+import org.hildan.bob.http.httpFormUrlEncoded
+import org.hildan.bob.http.ktorClient
 
 object HerokuApi {
 

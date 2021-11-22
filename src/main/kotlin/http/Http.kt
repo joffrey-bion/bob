@@ -1,4 +1,4 @@
-package org.hildan.github.secrets.wizard.http
+package org.hildan.bob.http
 
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*

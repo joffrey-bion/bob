@@ -1,4 +1,4 @@
-package org.hildan.github.secrets.wizard
+package org.hildan.bob
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

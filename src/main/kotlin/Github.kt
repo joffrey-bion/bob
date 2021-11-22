@@ -1,4 +1,4 @@
-package org.hildan.github.secrets.wizard
+package org.hildan.bob
 
 import com.github.ajalt.clikt.output.TermUi.echo
 import com.goterl.lazysodium.LazySodiumJava
@@ -10,10 +10,10 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.hildan.github.secrets.wizard.http.OAuth
-import org.hildan.github.secrets.wizard.http.ktorClient
-import org.hildan.github.secrets.wizard.http.tokenAuthHeader
-import org.hildan.github.secrets.wizard.providers.Secret
+import org.hildan.bob.http.OAuth
+import org.hildan.bob.http.ktorClient
+import org.hildan.bob.http.tokenAuthHeader
+import org.hildan.bob.providers.Secret
 import java.util.*
 
 data class GitHubRepo(

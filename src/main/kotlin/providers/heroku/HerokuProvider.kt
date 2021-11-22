@@ -1,11 +1,11 @@
-package org.hildan.github.secrets.wizard.providers.heroku
+package org.hildan.bob.providers.heroku
 
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
-import org.hildan.github.secrets.wizard.providers.Secret
-import org.hildan.github.secrets.wizard.providers.SecretOptionGroup
-import org.hildan.github.secrets.wizard.providers.SecretProvider
+import org.hildan.bob.providers.Secret
+import org.hildan.bob.providers.SecretOptionGroup
+import org.hildan.bob.providers.SecretProvider
 
 open class HerokuSecretsDefinition : SecretOptionGroup(
     providerName = "Heroku",

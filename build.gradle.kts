@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-    mainClass.set("org.hildan.github.secrets.wizard.MainKt")
+    mainClass.set("org.hildan.bob.MainKt")
 }
 
 repositories {

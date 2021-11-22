@@ -1,4 +1,4 @@
-package org.hildan.github.secrets.wizard.providers.bintray
+package org.hildan.bob.providers.bintray
 
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
@@ -7,11 +7,11 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import io.ktor.client.request.*
 import io.ktor.http.*
-import org.hildan.github.secrets.wizard.http.httpFormUrlEncoded
-import org.hildan.github.secrets.wizard.http.ktorClient
-import org.hildan.github.secrets.wizard.providers.Secret
-import org.hildan.github.secrets.wizard.providers.SecretOptionGroup
-import org.hildan.github.secrets.wizard.providers.SecretProvider
+import org.hildan.bob.http.httpFormUrlEncoded
+import org.hildan.bob.http.ktorClient
+import org.hildan.bob.providers.Secret
+import org.hildan.bob.providers.SecretOptionGroup
+import org.hildan.bob.providers.SecretProvider
 import java.net.URLEncoder
 
 open class BintraySecretsDefinition : SecretOptionGroup(

@@ -1,1 +1,1 @@
-rootProject.name = "github-secrets-wizard"
+rootProject.name = "bob"

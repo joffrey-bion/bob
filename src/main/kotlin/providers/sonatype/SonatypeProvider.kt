@@ -1,4 +1,4 @@
-package org.hildan.github.secrets.wizard.providers.sonatype
+package org.hildan.bob.providers.sonatype
 
 import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.default
@@ -9,12 +9,12 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.hildan.github.secrets.wizard.http.basicAuthHeader
-import org.hildan.github.secrets.wizard.http.ktorClient
-import org.hildan.github.secrets.wizard.http.toBase64
-import org.hildan.github.secrets.wizard.providers.Secret
-import org.hildan.github.secrets.wizard.providers.SecretOptionGroup
-import org.hildan.github.secrets.wizard.providers.SecretProvider
+import org.hildan.bob.http.basicAuthHeader
+import org.hildan.bob.http.ktorClient
+import org.hildan.bob.http.toBase64
+import org.hildan.bob.providers.Secret
+import org.hildan.bob.providers.SecretOptionGroup
+import org.hildan.bob.providers.SecretProvider
 
 open class SonatypeSecretsDefinition : SecretOptionGroup(
     providerName = "OSS Sonatype",

@@ -1,5 +1,5 @@
 FROM openjdk:15
 
-COPY build/install/github-secrets-wizard /app
+COPY build/install/bob /app
 
-ENTRYPOINT ["/app/bin/github-secrets-wizard"]
+ENTRYPOINT ["/app/bin/bob"]

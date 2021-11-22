@@ -1,18 +1,18 @@
-package org.hildan.github.secrets.wizard
+package org.hildan.bob
 
 import com.github.ajalt.clikt.core.NoOpCliktCommand
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.output.CliktHelpFormatter
-import org.hildan.github.secrets.wizard.commands.FetchSecretsCommand
-import org.hildan.github.secrets.wizard.commands.SetGitHubSecretsCommand
+import org.hildan.bob.commands.FetchSecretsCommand
+import org.hildan.bob.commands.SetGitHubSecretsCommand
 
 fun main(args: Array<String>) = Cli().subcommands(
     FetchSecretsCommand(),
     SetGitHubSecretsCommand(),
 ).main(args)
 
-class Cli : NoOpCliktCommand(name = "secrets-wizard", help = "A helper to fetch and set secrets") {
+class Cli : NoOpCliktCommand(name = "bob", help = "A helper to manage and maintain projects") {
     init {
         context {
             helpFormatter = CliktHelpFormatter(showDefaultValues = true)

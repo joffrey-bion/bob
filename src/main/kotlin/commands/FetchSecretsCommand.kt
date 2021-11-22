@@ -1,4 +1,4 @@
-package org.hildan.github.secrets.wizard.commands
+package org.hildan.bob.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintMessage
@@ -6,13 +6,13 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import kotlinx.coroutines.runBlocking
-import org.hildan.github.secrets.wizard.providers.Secret
-import org.hildan.github.secrets.wizard.providers.SecretProvider
-import org.hildan.github.secrets.wizard.providers.bintray.BintrayProvider
-import org.hildan.github.secrets.wizard.providers.heroku.HerokuProvider
-import org.hildan.github.secrets.wizard.providers.secretProviderGroupSwitch
-import org.hildan.github.secrets.wizard.providers.sonatype.SonatypeProvider
-import org.hildan.github.secrets.wizard.setWindowsEnv
+import org.hildan.bob.providers.Secret
+import org.hildan.bob.providers.SecretProvider
+import org.hildan.bob.providers.bintray.BintrayProvider
+import org.hildan.bob.providers.heroku.HerokuProvider
+import org.hildan.bob.providers.secretProviderGroupSwitch
+import org.hildan.bob.providers.sonatype.SonatypeProvider
+import org.hildan.bob.setWindowsEnv
 
 class FetchSecretsCommand : CliktCommand(
     name = "fetch-secrets",

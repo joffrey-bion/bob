@@ -1,4 +1,4 @@
-package org.hildan.github.secrets.wizard.commands
+package org.hildan.bob.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.output.TermUi
@@ -6,16 +6,16 @@ import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.groupSwitch
 import com.github.ajalt.clikt.parameters.options.*
 import kotlinx.coroutines.runBlocking
-import org.hildan.github.secrets.wizard.GitHub
-import org.hildan.github.secrets.wizard.GitHubRepo
-import org.hildan.github.secrets.wizard.browseIfSupported
-import org.hildan.github.secrets.wizard.providers.Secret
-import org.hildan.github.secrets.wizard.providers.SecretGroupDefinition
-import org.hildan.github.secrets.wizard.providers.bintray.BintraySecretsDefinition
-import org.hildan.github.secrets.wizard.providers.heroku.HerokuSecretsDefinition
-import org.hildan.github.secrets.wizard.providers.secretsDefinitionGroupSwitch
-import org.hildan.github.secrets.wizard.providers.sonatype.SonatypeSecretsDefinition
-import org.hildan.github.secrets.wizard.setWindowsEnv
+import org.hildan.bob.GitHub
+import org.hildan.bob.GitHubRepo
+import org.hildan.bob.browseIfSupported
+import org.hildan.bob.providers.Secret
+import org.hildan.bob.providers.SecretGroupDefinition
+import org.hildan.bob.providers.bintray.BintraySecretsDefinition
+import org.hildan.bob.providers.heroku.HerokuSecretsDefinition
+import org.hildan.bob.providers.secretsDefinitionGroupSwitch
+import org.hildan.bob.providers.sonatype.SonatypeSecretsDefinition
+import org.hildan.bob.setWindowsEnv
 import java.util.*
 import kotlin.system.exitProcess
 

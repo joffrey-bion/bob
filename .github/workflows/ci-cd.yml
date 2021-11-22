@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 env:
-  DOCKER_IMAGE_NAME: secrets-wizard
+  DOCKER_IMAGE_NAME: bob
 
 jobs:
   build:
