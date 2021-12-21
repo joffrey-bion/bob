@@ -19,7 +19,7 @@ dependencies {
     implementation("com.github.ajalt.clikt:clikt:3.3.0")
 
     // the apache client is the only one supporting redirects
-    val ktorVersion = "1.6.4"
+    val ktorVersion = "1.6.7"
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-serialization-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
