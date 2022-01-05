@@ -20,4 +20,8 @@ class Cli : NoOpCliktCommand(name = "bob", help = "A helper to manage and mainta
             helpFormatter = CliktHelpFormatter(showDefaultValues = true)
         }
     }
+
+    override fun aliases(): Map<String, List<String>> = mapOf(
+        "ugw" to listOf("upgrade-gradle-wrapper")
+    )
 }
