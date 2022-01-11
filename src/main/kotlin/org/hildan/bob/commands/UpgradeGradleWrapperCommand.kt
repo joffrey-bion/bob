@@ -66,7 +66,7 @@ class UpgradeGradleWrapperCommand : CliktCommand(
 
     private suspend fun runWrapperCommand(version: String, checksum: String) {
         exec(
-            if (OS.isWindows) "gradlew.bat" else "./gradlew",
+            if (OS.isWindows) "gradlew.bat" else "gradlew",
             "wrapper",
             "--gradle-version",
             version,
