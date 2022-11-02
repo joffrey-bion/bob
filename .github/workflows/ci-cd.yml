@@ -20,21 +20,10 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
-      - name: Gradle build cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-build-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: ${{ runner.os }}-gradle-build-
-
-      - name: Gradle wrapper cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle-wrapper.properties') }}
-
       - name: Build distribution with Gradle
-        run: ./gradlew installDist
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: installDist
 
       # technically optional, brings support for more platform to Docker Buildx
       - name: Set up QEMU
