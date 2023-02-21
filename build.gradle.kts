@@ -21,7 +21,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
-    implementation("com.github.ajalt.clikt:clikt:3.3.0")
+    implementation("com.github.ajalt.clikt:clikt:3.5.1")
     implementation("com.charleskorn.kaml:kaml:0.51.0")
 
     // the apache client is the only one supporting redirects
