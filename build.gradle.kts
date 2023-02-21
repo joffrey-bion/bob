@@ -25,10 +25,12 @@ dependencies {
     implementation("com.charleskorn.kaml:kaml:0.51.0")
 
     // the apache client is the only one supporting redirects
-    val ktorVersion = "1.6.7"
+    val ktorVersion = "2.2.3"
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    implementation("io.ktor:ktor-client-serialization-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
     implementation("org.slf4j:slf4j-simple:1.8.0-beta4")
 
     // necessary for encryption of secrets for GitHub

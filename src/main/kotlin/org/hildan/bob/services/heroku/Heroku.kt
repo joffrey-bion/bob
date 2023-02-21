@@ -1,16 +1,15 @@
 package org.hildan.bob.services.heroku
 
-import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.core.*
 import io.ktor.client.*
-import io.ktor.client.features.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import org.hildan.bob.http.bearerAuthHeader
-import org.hildan.bob.http.http
-import org.hildan.bob.http.httpFormUrlEncoded
+import kotlinx.serialization.*
+import org.hildan.bob.http.*
 
 object Heroku {
 
@@ -18,29 +17,29 @@ object Heroku {
         http.setupCookiesWithCredentialsLogin(login, password)
         val token = http.oAuthLogin()
 
-        val response = http.get<AuthResponse>("https://api.heroku.com/oauth/authorizations/~?name=~") {
+        val response = http.get("https://api.heroku.com/oauth/authorizations/~?name=~") {
             accept(ContentType.parse("application/vnd.heroku+json; version=3"))
-            bearerAuthHeader(token)
-        }
+            bearerAuth(token)
+        }.body<AuthResponse>()
         return response.accessToken?.token ?: error("API key not found, was it ever generated?")
     }
 
     private suspend fun HttpClient.setupCookiesWithCredentialsLogin(login: String, password: String) {
         // Login to store authentication cookie
-        val html = get<String>("https://id.heroku.com/login")
+        val html = get("https://id.heroku.com/login").body<String>()
         val csrfToken = html.extractCsrf()
 
         try {
             // Login to store authentication cookie
-            post<Unit>("https://id.heroku.com/login") {
+            post("https://id.heroku.com/login") {
                 header("Referer", "https://id.heroku.com/login")
                 contentType(ContentType.Application.FormUrlEncoded)
-                body = httpFormUrlEncoded(
+                setBody(httpFormUrlEncoded(
                     "_csrf" to csrfToken,
                     "email" to login,
                     "password" to password,
                     "commit" to "Log In",
-                )
+                ))
             }
         } catch (e: RedirectResponseException) {
             // ignore the redirection, we don't want to follow it
@@ -53,14 +52,15 @@ object Heroku {
         }
         val oAuthCode = response.request.url.parameters["code"] ?:
             throw PrintMessage("No OAuth code received from Heroku", error = true)
-        val tokenResponse = post<OAuthTokenResponse>("https://auth.heroku.com/login/token") {
+        val tokenResponse = post("https://auth.heroku.com/login/token") {
             contentType(ContentType.Application.FormUrlEncoded)
-            body = httpFormUrlEncoded(
+
+            setBody(httpFormUrlEncoded(
                 "grant_type" to "password",
                 "username" to "null",
                 "password" to oAuthCode,
-            )
-        }
+            ))
+        }.body<OAuthTokenResponse>()
         return tokenResponse.accessToken ?: throw PrintMessage("No OAuth token received from Heroku", error = true)
     }
 }

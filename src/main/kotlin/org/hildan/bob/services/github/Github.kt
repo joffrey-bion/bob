@@ -5,14 +5,14 @@ import com.goterl.lazysodium.LazySodiumJava
 import com.goterl.lazysodium.SodiumJava
 import com.goterl.lazysodium.utils.Key
 import io.ktor.client.*
-import io.ktor.client.features.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.hildan.bob.http.OAuth
 import org.hildan.bob.http.ktorClient
-import org.hildan.bob.http.tokenAuthHeader
 import org.hildan.bob.secrets.Secret
 import java.util.*
 
@@ -32,7 +32,7 @@ data class GitHub(
                 protocol = URLProtocol.HTTPS
                 host = "api.github.com"
             }
-            tokenAuthHeader(token)
+            bearerAuth(token)
             accept(ContentType.Application.Json)
         }
     }
@@ -42,17 +42,17 @@ data class GitHub(
     suspend fun setSecret(secret: Secret, repo: GitHubRepo) {
         val publicKey = fetchPublicKey(repo)
         val encryptedHexa = lazySodium.cryptoBoxSealEasy(secret.value, publicKey.asLibsodiumKey())
-        ghClient.put<Unit> {
+        ghClient.put {
             url { encodedPath = "/repos/${repo.slug}/actions/secrets/${secret.name}" }
             contentType(ContentType.Application.Json)
-            body = GitHubCreateSecretRequest(publicKey.id, encryptedHexa.hexadecimalToBase64())
+            setBody(GitHubCreateSecretRequest(publicKey.id, encryptedHexa.hexadecimalToBase64()))
         }
         echo("Secret ${secret.name} set")
     }
 
     private suspend fun fetchPublicKey(repo: GitHubRepo): GitHubPublicKeyResponse = ghClient.get {
         url { encodedPath = "/repos/${repo.slug}/actions/secrets/public-key" }
-    }
+    }.body()
 
     companion object {
         const val newTokenUrl = "https://github.com/settings/tokens/new?description=GitHub%20Secrets%20Wizard&scopes=repo"
@@ -69,12 +69,12 @@ data class GitHub(
                 callbackUriParamName = "redirect_uri",
             )
 
-            val response = client.post<GitHubOAuthResponse>("https://github.com/login/oauth/access_token") {
+            val response = client.post(urlString = "https://github.com/login/oauth/access_token") {
                 accept(ContentType.Application.Json)
                 contentType(ContentType.Application.Json)
-                body = GitHubOAuthRequest(clientId, clientSecret, code)
+                setBody(GitHubOAuthRequest(clientId, clientSecret, code))
             }
-            return GitHub(response.token)
+            return GitHub(response.body<GitHubOAuthResponse>().token)
         }
     }
 }

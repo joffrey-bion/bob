@@ -2,13 +2,12 @@ package org.hildan.bob.http
 
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
-import io.ktor.client.features.cookies.*
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
-import io.ktor.client.request.*
-import kotlinx.serialization.json.Json
-import java.net.URLEncoder
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.cookies.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.*
+import java.net.*
 import java.util.*
 
 val http = ktorClient()
@@ -18,12 +17,12 @@ fun ktorClient(
     configure: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {},
 ) = HttpClient(Apache) {
     followRedirects = true
-    install(JsonFeature) {
-        serializer = KotlinxSerializer(Json { ignoreUnknownKeys = true })
+    install(ContentNegotiation) {
+        json(Json { ignoreUnknownKeys = true })
     }
+    useDefaultTransformers = false
     install(HttpCookies) {
         storage = AcceptAllCookiesStorage()
-        useDefaultTransformers = false
     }
     if (logging) {
         install(Logging) {
@@ -32,19 +31,6 @@ fun ktorClient(
         }
     }
     configure()
-}
-
-fun HttpRequestBuilder.basicAuthHeader(login: String, password: String) {
-    val basicAuth = "$login:$password".toBase64()
-    header("Authorization", "Basic $basicAuth")
-}
-
-fun HttpRequestBuilder.bearerAuthHeader(token: String) {
-    header("Authorization", "Bearer $token")
-}
-
-fun HttpRequestBuilder.tokenAuthHeader(token: String) {
-    header("Authorization", "token $token")
 }
 
 fun httpFormUrlEncoded(vararg params: Pair<String, String>) =

@@ -1,16 +1,17 @@
 package org.hildan.bob.services.gradle
 
+import io.ktor.client.call.*
 import io.ktor.client.request.*
-import kotlinx.serialization.Serializable
-import org.hildan.bob.http.http
+import kotlinx.serialization.*
+import org.hildan.bob.http.*
 
 object Gradle {
 
     suspend fun getLatestVersion(): GradleVersionDetails =
-        http.get("https://services.gradle.org/versions/current")
+        http.get("https://services.gradle.org/versions/current").body()
 
     suspend fun getVersion(version: String): GradleVersionDetails {
-        val allVersions = http.get<List<GradleVersionDetails>>("https://services.gradle.org/versions/all")
+        val allVersions = http.get("https://services.gradle.org/versions/all").body<List<GradleVersionDetails>>()
         return allVersions.find { it.version == version } ?: error("Gradle version $version not found")
     }
 }
@@ -31,5 +32,5 @@ data class GradleVersionDetails(
     val checksumUrl: String,
     val wrapperChecksumUrl: String
 ) {
-    suspend fun fetchChecksum() = http.get<String>(checksumUrl)
+    suspend fun fetchChecksum(): String = http.get(checksumUrl).body()
 }
