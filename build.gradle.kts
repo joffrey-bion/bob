@@ -1,5 +1,5 @@
 plugins {
-    val kotlinVersion = "1.7.0"
+    val kotlinVersion = "1.8.10"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
     application
@@ -11,6 +11,10 @@ application {
 
 repositories {
     mavenCentral()
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
@@ -32,10 +36,6 @@ dependencies {
     implementation("net.java.dev.jna:jna:5.10.0")
 
     implementation("com.google.oauth-client:google-oauth-client-jetty:1.32.1")
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "11"
 }
 
 tasks.create<Copy>("installOnLocalWindows") {
