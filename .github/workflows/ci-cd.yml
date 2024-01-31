@@ -3,6 +3,7 @@ name: CI-CD
 on:
   push:
     branches: [ main ]
+    paths-ignore: [ 'github-secrets-mapping.yml' ]
 
 env:
   DOCKER_IMAGE_NAME: bob
