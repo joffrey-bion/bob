@@ -2,7 +2,6 @@ name: CI-CD
 
 on:
   push:
-    branches: [ main ]
     paths-ignore: [ 'github-secrets-mapping.yml' ]
 
 env:
@@ -52,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: |
             ${{ secrets.DOCKERHUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             ${{ secrets.DOCKERHUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
