@@ -31,7 +31,7 @@ dependencies {
     implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
-    implementation("org.slf4j:slf4j-simple:1.8.0-beta4")
+    implementation("org.slf4j:slf4j-simple:2.1.0-alpha1")
 
     // necessary for encryption of secrets for GitHub
     implementation("com.goterl:lazysodium-java:5.1.1")
