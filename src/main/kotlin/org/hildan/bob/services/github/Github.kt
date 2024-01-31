@@ -1,6 +1,5 @@
 package org.hildan.bob.services.github
 
-import com.github.ajalt.clikt.output.TermUi.echo
 import com.goterl.lazysodium.LazySodiumJava
 import com.goterl.lazysodium.SodiumJava
 import com.goterl.lazysodium.utils.Key
@@ -47,7 +46,6 @@ data class GitHub(
             contentType(ContentType.Application.Json)
             setBody(GitHubCreateSecretRequest(publicKey.id, encryptedHexa.hexadecimalToBase64()))
         }
-        echo("Secret ${secret.name} set")
     }
 
     private suspend fun fetchPublicKey(repo: GitHubRepo): GitHubPublicKeyResponse = ghClient.get {

@@ -3,7 +3,7 @@ package org.hildan.bob
 import com.github.ajalt.clikt.core.NoOpCliktCommand
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.subcommands
-import com.github.ajalt.clikt.output.CliktHelpFormatter
+import com.github.ajalt.clikt.output.*
 import org.hildan.bob.commands.*
 
 fun main(args: Array<String>) = Cli().subcommands(
@@ -17,7 +17,7 @@ fun main(args: Array<String>) = Cli().subcommands(
 class Cli : NoOpCliktCommand(name = "bob", help = "A helper to manage and maintain projects") {
     init {
         context {
-            helpFormatter = CliktHelpFormatter(showDefaultValues = true)
+            helpFormatter = { MordantHelpFormatter(it, showDefaultValues = true) }
         }
     }
 

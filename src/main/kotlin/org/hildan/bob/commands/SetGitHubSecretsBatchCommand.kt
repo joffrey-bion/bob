@@ -48,7 +48,10 @@ class SetGitHubSecretsBatchCommand : CliktCommand(
             println("DRY-RUN: would have set the following secrets:")
             secrets.forEach { println("${it.name}=${it.value}") }
         } else {
-            secrets.forEach { setSecret(it, repo) }
+            secrets.forEach {
+                setSecret(it, repo)
+                echo("Secret ${it.name} set")
+            }
         }
     }
 }
@@ -56,13 +59,13 @@ class SetGitHubSecretsBatchCommand : CliktCommand(
 private fun GitHubSecretsDefinition.secretsByRepo() = repositories.mapValues { (repo, def) ->
     def.bundles.flatMap { b ->
         secretBundles[b]?.map { resolveSecret(it) }
-            ?: throw PrintMessage("Invalid YAML: unknown bundle '$b' used in repository '$repo'", error = true)
+            ?: throw PrintMessage("Invalid YAML: unknown bundle '$b' used in repository '$repo'", printError = true)
     }
 }
 
 private fun resolveSecret(envVarName: String): Secret {
     val value = System.getenv(envVarName)
-        ?: throw PrintMessage("Secret environment variable $envVarName is not set", error = true)
+        ?: throw PrintMessage("Secret environment variable $envVarName is not set", printError = true)
     return Secret(envVarName, value)
 }
 

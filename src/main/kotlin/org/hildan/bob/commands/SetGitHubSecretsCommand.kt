@@ -1,19 +1,15 @@
 package org.hildan.bob.commands
 
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.output.TermUi
-import com.github.ajalt.clikt.parameters.groups.OptionGroup
-import com.github.ajalt.clikt.parameters.groups.groupSwitch
+import com.github.ajalt.clikt.core.*
+import com.github.ajalt.clikt.parameters.groups.*
 import com.github.ajalt.clikt.parameters.options.*
-import kotlinx.coroutines.runBlocking
-import org.hildan.bob.services.github.GitHub
-import org.hildan.bob.services.github.GitHubRepo
+import com.github.ajalt.mordant.terminal.*
+import kotlinx.coroutines.*
 import org.hildan.bob.secrets.*
-import org.hildan.bob.utils.browseIfSupported
-import org.hildan.bob.utils.OS
-import org.hildan.bob.utils.setWindowsEnv
+import org.hildan.bob.services.github.*
+import org.hildan.bob.utils.*
 import java.util.*
-import kotlin.system.exitProcess
+import kotlin.system.*
 
 const val GITHUB_USER = "GITHUB_USER"
 private const val GITHUB_TOKEN = "GITHUB_TOKEN"
@@ -83,14 +79,17 @@ class SetGitHubSecretsCommand : CliktCommand(
             println("DRY-RUN: would have set the following secrets:")
             secrets.forEach { println("${it.name}=${it.value}") }
         } else {
-            secrets.forEach { gitHub.setSecret(it, repo) }
+            secrets.forEach {
+                gitHub.setSecret(it, repo)
+                echo("Secret ${it.name} set")
+            }
         }
     }
 
     private suspend fun setupAndGetToken(): String {
         println("$GITHUB_TOKEN is not set, please create a new token at ${GitHub.newTokenUrl}")
         browseIfSupported(GitHub.newTokenUrl)
-        val token = TermUi.prompt("Enter Personal Access Token", hideInput = true)
+        val token = terminal.prompt("Enter Personal Access Token", hideInput = true)
         if (token.isNullOrBlank()) {
             System.err.println("No token provided. Aborting.")
             exitProcess(1)
@@ -103,10 +102,11 @@ class SetGitHubSecretsCommand : CliktCommand(
         if (!OS.isWindows) {
             return // this is only supported on windows
         }
-        val shouldStore = TermUi.confirm(
-            text = "Would you like to store the token in $GITHUB_TOKEN environment variable? (Y/n)",
+        val shouldStore = YesNoPrompt(
+            prompt = "Would you like to store the token in $GITHUB_TOKEN environment variable?",
+            terminal = terminal,
             default = true,
-        ) ?: true // for non-interactive
+        ).ask() ?: true // for non-interactive
 
         if (shouldStore) {
             setWindowsEnv(GITHUB_TOKEN, token)

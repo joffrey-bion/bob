@@ -1,7 +1,6 @@
 package org.hildan.bob.commands
 
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.core.*
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
@@ -22,7 +21,7 @@ class FetchSecretsCommand : CliktCommand(
 
     private val heroku by secretProviderGroupSwitch(HerokuProvider())
 
-    private val sonatype by secretProviderGroupSwitch(SonatypeProvider { defaultUser })
+    private val sonatype by secretProviderGroupSwitch(SonatypeProvider(terminal) { defaultUser })
 
     private val providers: List<SecretProvider>
         get() = listOfNotNull(heroku, sonatype)
@@ -46,7 +45,7 @@ class FetchSecretsCommand : CliktCommand(
 
     private suspend fun setWindowsEnv(secrets: List<Secret>) {
         if (!OS.isWindows) {
-            throw PrintMessage("ENV storage is only supported on Windows", error = true)
+            throw PrintMessage("ENV storage is only supported on Windows", printError = true)
         }
         secrets.forEach { setWindowsEnv(it.name, it.value) }
     }

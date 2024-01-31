@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
+import com.github.ajalt.mordant.terminal.*
 import org.hildan.bob.services.sonatype.Sonatype
 
 open class SonatypeSecretsDefinition : SecretOptionGroup(
@@ -25,14 +26,19 @@ open class SonatypeSecretsDefinition : SecretOptionGroup(
     ).default("OSSRH_KEY")
 }
 
-class SonatypeProvider(val defaultUserLazy: () -> String?) : SonatypeSecretsDefinition(), SecretProvider {
+class SonatypeProvider(
+    val terminal: Terminal,
+    val defaultUserLazy: () -> String?,
+) : SonatypeSecretsDefinition(), SecretProvider {
 
     private val user by option(
         "--ossrh-login",
         help = "Your OSS Sonatype login (defaults to the GitHub username)",
     ).defaultLazy {
         val defaultUser = defaultUserLazy()
-        TermUi.prompt("Your OSS Sonatype login", default = defaultUser) ?: defaultUser ?: error("OSS Sonatype user required")
+        terminal.prompt("Your OSS Sonatype login", default = defaultUser)
+            ?: defaultUser
+            ?: error("OSS Sonatype user required")
     }
 
     private val password by option(

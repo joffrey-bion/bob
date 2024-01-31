@@ -51,7 +51,7 @@ object Heroku {
             accept(ContentType.Text.Html)
         }
         val oAuthCode = response.request.url.parameters["code"] ?:
-            throw PrintMessage("No OAuth code received from Heroku", error = true)
+            throw PrintMessage("No OAuth code received from Heroku", printError = true)
         val tokenResponse = post("https://auth.heroku.com/login/token") {
             contentType(ContentType.Application.FormUrlEncoded)
 
@@ -61,7 +61,7 @@ object Heroku {
                 "password" to oAuthCode,
             ))
         }.body<OAuthTokenResponse>()
-        return tokenResponse.accessToken ?: throw PrintMessage("No OAuth token received from Heroku", error = true)
+        return tokenResponse.accessToken ?: throw PrintMessage("No OAuth token received from Heroku", printError = true)
     }
 }
 
