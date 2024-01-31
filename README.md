@@ -5,7 +5,7 @@
 
 A CLI tool to help with management and maintenance of OSS repositories.
 
-It can help setup secrets for a Github repository by fetching API keys from well known providers.
+For instance, it automates the setup of secrets for a set of Github repositories.
 
 ## Usage
 
