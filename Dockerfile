@@ -1,5 +1,4 @@
-# focal == ubuntu-20.04 == GitHub's ubuntu-latest (at the moment)
-FROM eclipse-temurin:17-jre-focal
+FROM eclipse-temurin:21-jre
 
 COPY build/install/bob /app
 
