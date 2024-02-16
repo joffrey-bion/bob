@@ -5,6 +5,7 @@ on:
     paths-ignore: [ 'github-secrets-mapping.yml' ]
 
 env:
+  DOCKERHUB_USER: hildan
   DOCKER_IMAGE_NAME: bob
 
 jobs:
@@ -57,7 +58,7 @@ jobs:
           context: .
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: |
-            ${{ secrets.DOCKERHUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            ${{ secrets.DOCKERHUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.DOCKERHUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            ${{ env.DOCKERHUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
             ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
