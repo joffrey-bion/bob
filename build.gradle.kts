@@ -19,7 +19,7 @@ kotlin {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     implementation("com.github.ajalt.clikt:clikt:4.2.2")
     implementation("com.charleskorn.kaml:kaml:0.57.0")
