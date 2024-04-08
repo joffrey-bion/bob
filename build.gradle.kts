@@ -25,7 +25,7 @@ dependencies {
     implementation("com.charleskorn.kaml:kaml:0.58.0")
 
     // the apache client is the only one supporting redirects
-    val ktorVersion = "2.3.9"
+    val ktorVersion = "2.3.10"
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
