@@ -6,19 +6,16 @@ import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.*
-import org.hildan.bob.secrets.*
 import org.hildan.bob.services.github.*
 import kotlin.io.path.*
-
-private const val GITHUB_TOKEN = "GITHUB_TOKEN"
 
 class SetGitHubSecretsBatchCommand : CliktCommand(
     name = "set-github-secrets-batch",
     help = "Sets secrets on GitHub repositories based on a file definition",
 ) {
-    private val githubToken by option("-t", "--github-token", envvar = GITHUB_TOKEN)
+    private val githubToken by option("-t", "--github-token", envvar = "GITHUB_TOKEN")
         .help("The token to use to authenticate with GitHub (GitHub doesn't allow password authentication anymore). " +
-            "Defaults to the $GITHUB_TOKEN environment variable, or triggers the creation of a new personal token.")
+            "Defaults to the GITHUB_TOKEN environment variable, or triggers the creation of a new personal token.")
         .required()
 
     private val definitionsFile by option("-f", "--file")

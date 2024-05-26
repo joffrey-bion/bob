@@ -1,18 +1,14 @@
 package org.hildan.bob.services.github
 
-import com.goterl.lazysodium.LazySodiumJava
-import com.goterl.lazysodium.SodiumJava
-import com.goterl.lazysodium.utils.Key
+import com.goterl.lazysodium.*
+import com.goterl.lazysodium.utils.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import org.hildan.bob.http.OAuth
-import org.hildan.bob.http.ktorClient
-import org.hildan.bob.secrets.Secret
+import kotlinx.serialization.*
+import org.hildan.bob.http.*
 import java.util.*
 
 data class GitHubRepo(
@@ -22,10 +18,15 @@ data class GitHubRepo(
     val slug = "$userOrOrg/$name"
 }
 
+data class Secret(
+    val name: String,
+    val value: String,
+)
+
 data class GitHub(
     val token: String,
 ) {
-    private val ghClient: HttpClient = ktorClient {
+    private val ghClient: HttpClient = http.config {
         install(DefaultRequest) {
             url {
                 protocol = URLProtocol.HTTPS
@@ -53,49 +54,10 @@ data class GitHub(
     }.body()
 
     companion object {
-        const val newTokenUrl = "https://github.com/settings/tokens/new?description=GitHub%20Secrets%20Wizard&scopes=repo"
 
         fun login(token: String): GitHub = GitHub(token)
-
-        suspend fun loginOAuth(clientId: String, clientSecret: String): GitHub {
-            val client = ktorClient {
-                followRedirects = false
-            }
-
-            val code = OAuth.authorizeInBrowser(
-                url = "https://github.com/login/oauth/authorize?client_id=$clientId&scope=repo",
-                callbackUriParamName = "redirect_uri",
-            )
-
-            val response = client.post(urlString = "https://github.com/login/oauth/access_token") {
-                accept(ContentType.Application.Json)
-                contentType(ContentType.Application.Json)
-                setBody(GitHubOAuthRequest(clientId, clientSecret, code))
-            }
-            return GitHub(response.body<GitHubOAuthResponse>().token)
-        }
     }
 }
-
-@Serializable
-private data class GitHubOAuthRequest(
-    @SerialName("client_id")
-    val clientId: String,
-    @SerialName("client_secret")
-    val clientSecret: String,
-    @SerialName("code")
-    val authorizationCode: String,
-)
-
-@Serializable
-private data class GitHubOAuthResponse(
-    @SerialName("access_token")
-    val token: String,
-    @SerialName("token_type")
-    val tokenType: String,
-    @SerialName("scope")
-    val scopes: String,
-)
 
 @Serializable
 private data class GitHubPublicKeyResponse(

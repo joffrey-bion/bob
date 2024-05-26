@@ -7,9 +7,7 @@ import com.github.ajalt.clikt.output.*
 import org.hildan.bob.commands.*
 
 fun main(args: Array<String>) = Cli().subcommands(
-    FetchSecretsCommand(),
     SetGitHubSecretsBatchCommand(),
-    SetGitHubSecretsCommand(),
     UpgradeGradleWrapperCommand(),
     ListKotlinPlatformsCommand(),
 ).main(args)
