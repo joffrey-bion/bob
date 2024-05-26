@@ -41,6 +41,6 @@ dependencies {
 tasks.create<Copy>("installOnLocalWindows") {
     group = "distribution"
     dependsOn("installDist")
-    from("$buildDir/install/bob")
+    from(layout.buildDirectory.dir("install/bob"))
     into("${System.getenv("LOCALAPPDATA")}\\Bob")
 }
