@@ -9,8 +9,8 @@ import kotlinx.serialization.*
 import org.hildan.bob.services.github.*
 import kotlin.io.path.*
 
-class SetGitHubSecretsBatchCommand : CliktCommand(
-    name = "set-github-secrets-batch",
+class SetGitHubSecretsCommand : CliktCommand(
+    name = "set-github-secrets",
     help = "Sets secrets on GitHub repositories based on a file definition",
 ) {
     private val githubToken by option("-t", "--github-token", envvar = "GITHUB_TOKEN")
