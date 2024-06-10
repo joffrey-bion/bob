@@ -22,7 +22,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
 
     implementation("com.github.ajalt.clikt:clikt:4.4.0")
-    implementation("com.charleskorn.kaml:kaml:0.59.0")
+    implementation("com.charleskorn.kaml:kaml:0.60.0")
 
     // the apache client is the only one supporting redirects
     val ktorVersion = "2.3.11"
