@@ -9,10 +9,8 @@ import kotlinx.serialization.*
 import org.hildan.bob.services.github.*
 import kotlin.io.path.*
 
-class SetGitHubSecretsCommand : CliktCommand(
-    name = "set-github-secrets",
-    help = "Sets secrets on GitHub repositories based on a file definition",
-) {
+class SetGitHubSecretsCommand : CliktCommand(name = "set-github-secrets") {
+
     private val githubToken by option("-t", "--github-token", envvar = "GITHUB_TOKEN")
         .help("The token to use to authenticate with GitHub (GitHub doesn't allow password authentication anymore). " +
             "Defaults to the GITHUB_TOKEN environment variable, or triggers the creation of a new personal token.")
@@ -27,6 +25,8 @@ class SetGitHubSecretsCommand : CliktCommand(
         .help("Enables dry-run mode. In this mode, the secrets won't actually be set on the repository, " +
                 "but the secrets will be retrieved from the source and printed.")
         .flag()
+
+    override fun help(context: Context) = "Sets secrets on GitHub repositories based on a file definition"
 
     override fun run(): Unit = runBlocking {
         val gitHub = GitHub.login(githubToken)

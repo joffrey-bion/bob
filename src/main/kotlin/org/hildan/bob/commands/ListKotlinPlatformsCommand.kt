@@ -1,7 +1,6 @@
 package org.hildan.bob.commands
 
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.UsageError
+import com.github.ajalt.clikt.core.*
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
@@ -14,10 +13,8 @@ import kotlin.io.path.readText
 
 private val lenientJson = Json { ignoreUnknownKeys = true }
 
-class ListKotlinPlatformsCommand : CliktCommand(
-    name = "list-kotlin-platforms",
-    help = "Lists the Kotlin platforms supported by a given maven module",
-) {
+class ListKotlinPlatformsCommand : CliktCommand(name = "list-kotlin-platforms") {
+
     private val moduleFile by option(
         "-f", "--module-file",
         help = "The .module file to inspect (required if -m is not specified)",
@@ -39,6 +36,8 @@ class ListKotlinPlatformsCommand : CliktCommand(
         "--module-version",
         help = "The version of the module to check, if -m is specified. By default, the latest version will be checked"
     )
+
+    override fun help(context: Context): String = "Lists the Kotlin platforms supported by a given maven module"
 
     override fun run() {
         fetchModule()

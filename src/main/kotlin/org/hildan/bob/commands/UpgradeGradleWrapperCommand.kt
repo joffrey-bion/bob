@@ -1,6 +1,6 @@
 package org.hildan.bob.commands
 
-import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.*
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import kotlinx.coroutines.runBlocking
@@ -8,10 +8,8 @@ import org.hildan.bob.services.gradle.Gradle
 import org.hildan.bob.utils.OS
 import org.hildan.bob.utils.exec
 
-class UpgradeGradleWrapperCommand : CliktCommand(
-    name = "upgrade-gradle-wrapper",
-    help = "Upgrades the gradle wrapper to the latest version",
-) {
+class UpgradeGradleWrapperCommand : CliktCommand(name = "upgrade-gradle-wrapper") {
+
     private val version by option(
         "-v",
         "--gradle-version",
@@ -19,6 +17,8 @@ class UpgradeGradleWrapperCommand : CliktCommand(
     )
 
     private val commit by option(help = "Commit the modified files").flag("--no-commit", default = true)
+
+    override fun help(context: Context): String = "Upgrades the gradle wrapper to the latest version"
 
     override fun run(): Unit = runBlocking {
         val versionDetails = fetchVersionDetails(version)
