@@ -35,7 +35,7 @@ dependencies {
 
     // necessary for encryption of secrets for GitHub
     implementation("com.goterl:lazysodium-java:5.1.4")
-    implementation("net.java.dev.jna:jna:5.14.0")
+    implementation("net.java.dev.jna:jna:5.15.0")
 }
 
 tasks.create<Copy>("installOnLocalWindows") {
