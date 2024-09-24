@@ -1,15 +1,15 @@
 package org.hildan.bob.commands
 
 import com.charleskorn.kaml.*
+import com.github.ajalt.clikt.command.*
 import com.github.ajalt.clikt.core.*
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.*
-import kotlinx.coroutines.*
 import kotlinx.serialization.*
 import org.hildan.bob.services.github.*
 import kotlin.io.path.*
 
-class SetGitHubSecretsCommand : CliktCommand(name = "set-github-secrets") {
+class SetGitHubSecretsCommand : SuspendingCliktCommand(name = "set-github-secrets") {
 
     private val githubToken by option("-t", "--github-token", envvar = "GITHUB_TOKEN")
         .help("The token to use to authenticate with GitHub (GitHub doesn't allow password authentication anymore). " +
@@ -28,7 +28,7 @@ class SetGitHubSecretsCommand : CliktCommand(name = "set-github-secrets") {
 
     override fun help(context: Context) = "Sets secrets on GitHub repositories based on a file definition"
 
-    override fun run(): Unit = runBlocking {
+    override suspend fun run() {
         val gitHub = GitHub.login(githubToken)
 
         val secretsDefinitions = Yaml.default.decodeFromStream<GitHubSecretsDefinition>(definitionsFile.inputStream())

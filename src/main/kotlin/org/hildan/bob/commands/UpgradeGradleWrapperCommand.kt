@@ -1,14 +1,12 @@
 package org.hildan.bob.commands
 
+import com.github.ajalt.clikt.command.*
 import com.github.ajalt.clikt.core.*
-import com.github.ajalt.clikt.parameters.options.flag
-import com.github.ajalt.clikt.parameters.options.option
-import kotlinx.coroutines.runBlocking
-import org.hildan.bob.services.gradle.Gradle
-import org.hildan.bob.utils.OS
-import org.hildan.bob.utils.exec
+import com.github.ajalt.clikt.parameters.options.*
+import org.hildan.bob.services.gradle.*
+import org.hildan.bob.utils.*
 
-class UpgradeGradleWrapperCommand : CliktCommand(name = "upgrade-gradle-wrapper") {
+class UpgradeGradleWrapperCommand : SuspendingCliktCommand(name = "upgrade-gradle-wrapper") {
 
     private val version by option(
         "-v",
@@ -20,7 +18,7 @@ class UpgradeGradleWrapperCommand : CliktCommand(name = "upgrade-gradle-wrapper"
 
     override fun help(context: Context): String = "Upgrades the gradle wrapper to the latest version"
 
-    override fun run(): Unit = runBlocking {
+    override suspend fun run() {
         val versionDetails = fetchVersionDetails(version)
 
         val checksum = logAndDo("Fetching checksum...", sameLine = true) {

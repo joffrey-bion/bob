@@ -1,16 +1,17 @@
 package org.hildan.bob
 
+import com.github.ajalt.clikt.command.*
 import com.github.ajalt.clikt.core.*
 import com.github.ajalt.clikt.output.*
 import org.hildan.bob.commands.*
 
-fun main(args: Array<String>) = Cli().subcommands(
+suspend fun main(args: Array<String>) = Cli().subcommands(
     SetGitHubSecretsCommand(),
     UpgradeGradleWrapperCommand(),
     ListKotlinPlatformsCommand(),
 ).main(args)
 
-class Cli : NoOpCliktCommand(name = "bob") {
+class Cli : SuspendingCliktCommand(name = "bob") {
 
     init {
         context {
@@ -23,4 +24,6 @@ class Cli : NoOpCliktCommand(name = "bob") {
     override fun aliases(): Map<String, List<String>> = mapOf(
         "ugw" to listOf("upgrade-gradle-wrapper")
     )
+
+    override suspend fun run() = Unit
 }

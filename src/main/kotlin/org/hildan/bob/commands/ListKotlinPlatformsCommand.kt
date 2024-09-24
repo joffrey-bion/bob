@@ -1,11 +1,11 @@
 package org.hildan.bob.commands
 
+import com.github.ajalt.clikt.command.*
 import com.github.ajalt.clikt.core.*
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import java.net.URL
@@ -13,7 +13,7 @@ import kotlin.io.path.readText
 
 private val lenientJson = Json { ignoreUnknownKeys = true }
 
-class ListKotlinPlatformsCommand : CliktCommand(name = "list-kotlin-platforms") {
+class ListKotlinPlatformsCommand : SuspendingCliktCommand(name = "list-kotlin-platforms") {
 
     private val moduleFile by option(
         "-f", "--module-file",
@@ -39,7 +39,7 @@ class ListKotlinPlatformsCommand : CliktCommand(name = "list-kotlin-platforms") 
 
     override fun help(context: Context): String = "Lists the Kotlin platforms supported by a given maven module"
 
-    override fun run() {
+    override suspend fun run() {
         fetchModule()
             .variants
             .map { it.targetInformation }
