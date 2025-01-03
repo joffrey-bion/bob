@@ -1,6 +1,6 @@
 # bob
 
-[![Github Build](https://img.shields.io/github/actions/workflow/status/joffrey-bion/bob/ci-cd.yml?label=build&logo=github)](https://github.com/joffrey-bion/bob/actions/workflows/ci-cd.yml)
+[![Github Build](https://img.shields.io/github/actions/workflow/status/joffrey-bion/bob/build.yml?label=build&logo=github)](https://github.com/joffrey-bion/bob/actions/workflows/build.yml)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/joffrey-bion/bob/blob/master/LICENSE)
 
 A CLI tool to help with management and maintenance of OSS repositories.
