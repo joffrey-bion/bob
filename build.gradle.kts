@@ -38,7 +38,7 @@ dependencies {
     implementation("net.java.dev.jna:jna:5.16.0")
 }
 
-tasks.create<Copy>("installOnLocalWindows") {
+tasks.register<Copy>("installOnLocalWindows") {
     group = "distribution"
     dependsOn("installDist")
     from(layout.buildDirectory.dir("install/bob"))
