@@ -21,7 +21,13 @@ data class GitHubRepo(
 data class Secret(
     val name: String,
     val value: String,
+    val type: SecretType,
 )
+
+enum class SecretType(val urlValue: String) {
+    actions("actions"),
+    dependabot("dependabot")
+}
 
 data class GitHub(
     val token: String,
@@ -40,17 +46,17 @@ data class GitHub(
     private val lazySodium = LazySodiumJava(SodiumJava())
 
     suspend fun setSecret(secret: Secret, repo: GitHubRepo) {
-        val publicKey = fetchPublicKey(repo)
+        val publicKey = fetchPublicKey(repo, secretType = secret.type)
         val encryptedHexa = lazySodium.cryptoBoxSealEasy(secret.value, publicKey.asLibsodiumKey())
         ghClient.put {
-            url { encodedPath = "/repos/${repo.slug}/actions/secrets/${secret.name}" }
+            url { encodedPath = "/repos/${repo.slug}/${secret.type.urlValue}/secrets/${secret.name}" }
             contentType(ContentType.Application.Json)
             setBody(GitHubCreateSecretRequest(publicKey.id, encryptedHexa.hexadecimalToBase64()))
         }
     }
 
-    private suspend fun fetchPublicKey(repo: GitHubRepo): GitHubPublicKeyResponse = ghClient.get {
-        url { encodedPath = "/repos/${repo.slug}/actions/secrets/public-key" }
+    private suspend fun fetchPublicKey(repo: GitHubRepo, secretType: SecretType): GitHubPublicKeyResponse = ghClient.get {
+        url { encodedPath = "/repos/${repo.slug}/${secretType.urlValue}/secrets/public-key" }
     }.body()
 
     companion object {

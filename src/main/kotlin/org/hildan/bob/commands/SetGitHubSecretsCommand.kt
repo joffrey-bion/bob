@@ -7,13 +7,14 @@ import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.*
 import kotlinx.serialization.*
 import org.hildan.bob.services.github.*
+import java.nio.file.Path
 import kotlin.io.path.*
 
 class SetGitHubSecretsCommand : SuspendingCliktCommand(name = "set-github-secrets") {
 
     private val githubToken by option("-t", "--github-token", envvar = "GITHUB_TOKEN")
         .help("The token to use to authenticate with GitHub (GitHub doesn't allow password authentication anymore). " +
-            "Defaults to the GITHUB_TOKEN environment variable, or triggers the creation of a new personal token.")
+            "Defaults to the GITHUB_TOKEN environment variable.")
         .required()
 
     private val definitionsFile by option("-f", "--file")
@@ -31,10 +32,9 @@ class SetGitHubSecretsCommand : SuspendingCliktCommand(name = "set-github-secret
     override suspend fun run() {
         val gitHub = GitHub.login(githubToken)
 
-        val secretsDefinitions = Yaml.default.decodeFromStream<GitHubSecretsDefinition>(definitionsFile.inputStream())
-        val secretsByRepo = secretsDefinitions.secretsByRepo()
+        val secretsDefinitions = definitionsFile.readDefinitions()
 
-        secretsByRepo.forEach { (repoName, secrets) ->
+        secretsDefinitions.secretsByRepo().forEach { (repoName, secrets) ->
             gitHub.setSecrets(GitHubRepo(secretsDefinitions.user, repoName), secrets)
         }
     }
@@ -43,37 +43,44 @@ class SetGitHubSecretsCommand : SuspendingCliktCommand(name = "set-github-secret
         println("Setting secrets in GitHub repository ${repo.slug}...")
         if (dryRun) {
             println("DRY-RUN: would have set the following secrets:")
-            secrets.forEach { println("${it.name}=${it.value}") }
+            secrets.forEach { println("  ${it.name}=${it.value} (${it.type})") }
         } else {
             secrets.forEach {
                 setSecret(it, repo)
-                echo("Secret ${it.name} set")
+                echo("  ${it.name} (${it.type})")
             }
         }
     }
 }
 
-private fun GitHubSecretsDefinition.secretsByRepo() = repositories.mapValues { (repo, def) ->
-    def.bundles.flatMap { b ->
+private fun Path.readDefinitions(): GitHubSecretsDefinition = inputStream().use { Yaml.default.decodeFromStream(it) }
+
+private fun GitHubSecretsDefinition.secretsByRepo() = repositories.mapValues { (repo, profile) ->
+    val bundles = profiles[profile]
+        ?: throw PrintMessage("Invalid YAML: unknown profile '$profile' used in repository '$repo'", printError = true)
+    bundles.flatMap { b ->
         secretBundles[b]?.map { resolveSecret(it) }
             ?: throw PrintMessage("Invalid YAML: unknown bundle '$b' used in repository '$repo'", printError = true)
     }
 }
 
-private fun resolveSecret(envVarName: String): Secret {
-    val value = System.getenv(envVarName)
-        ?: throw PrintMessage("Secret environment variable $envVarName is not set", printError = true)
-    return Secret(envVarName, value)
+private fun resolveSecret(def: SecretDefinition): Secret {
+    val value = System.getenv(def.sourceEnv)
+        ?: throw PrintMessage("Secret environment variable ${def.sourceEnv} is not set", printError = true)
+    return Secret(def.secret, value, type = def.type)
 }
 
 @Serializable
 private class GitHubSecretsDefinition(
     val user: String,
-    val secretBundles: Map<String, List<String>>,
-    val repositories: Map<String, RepoDefinition>,
+    val secretBundles: Map<String, List<SecretDefinition>>,
+    val profiles: Map<String, List<String>>,
+    val repositories: Map<String, String>,
 )
 
 @Serializable
-private class RepoDefinition(
-    val bundles: List<String>,
+private class SecretDefinition(
+    val secret: String,
+    val sourceEnv: String = secret,
+    val type: SecretType = SecretType.actions,
 )
