@@ -9,7 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.*
 import org.hildan.bob.http.*
-import java.util.*
+import kotlin.io.encoding.Base64
 
 data class GitHubRepo(
     val userOrOrg: String,
@@ -51,7 +51,7 @@ data class GitHub(
         ghClient.put {
             url { encodedPath = "/repos/${repo.slug}/${secret.type.urlValue}/secrets/${secret.name}" }
             contentType(ContentType.Application.Json)
-            setBody(GitHubCreateSecretRequest(publicKey.id, encryptedHexa.hexadecimalToBase64()))
+            setBody(GitHubCreateSecretRequest(publicKey.id, Base64.encode(encryptedHexa.hexToByteArray())))
         }
     }
 
@@ -82,11 +82,3 @@ private data class GitHubCreateSecretRequest(
     @SerialName("encrypted_value")
     val secretValueBase64: String,
 )
-
-private fun String.hexadecimalToBase64() = Base64.getEncoder().encodeToString(byteArrayFromHexString())
-
-@OptIn(ExperimentalUnsignedTypes::class)
-private fun String.byteArrayFromHexString() = chunked(2)
-    .map { it.toUByte(16) }
-    .toUByteArray()
-    .toByteArray()
