@@ -12,7 +12,6 @@ val http = HttpClient(Apache) {
     install(ContentNegotiation) {
         json(Json { ignoreUnknownKeys = true })
     }
-    useDefaultTransformers = false
     install(HttpCookies) {
         storage = AcceptAllCookiesStorage()
     }

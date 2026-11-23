@@ -5,10 +5,12 @@ import com.github.ajalt.clikt.core.*
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
+import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
-import java.net.URL
+import org.hildan.bob.http.http
 import kotlin.io.path.readText
 
 private val lenientJson = Json { ignoreUnknownKeys = true }
@@ -50,15 +52,17 @@ class ListKotlinPlatformsCommand : SuspendingCliktCommand(name = "list-kotlin-pl
             }
     }
 
-    private fun fetchModule(): Module = lenientJson.decodeFromString(fetchModuleJsonContent())
+    private suspend fun fetchModule(): Module = lenientJson.decodeFromString(fetchModuleJsonContent())
 
-    private fun fetchModuleJsonContent(): String = moduleFile?.readText() ?: fetchModuleInfoFromMavenCentral()
+    private suspend fun fetchModuleJsonContent(): String = moduleFile?.readText() ?: fetchModuleInfoFromMavenCentral()
 
-    private fun fetchModuleInfoFromMavenCentral(): String {
+    private suspend fun fetchModuleInfoFromMavenCentral(): String {
         val mid = moduleId ?: throw UsageError("Either -f or -m must be provided")
         return version?.let { mid.fetchModuleInfo(it) } ?: mid.fetchLatestModuleInfo()
     }
 }
+
+private val latestVersionRegex = Regex("<latest>([^<]+)</latest>")
 
 data class ModuleId(
     val groupId: String,
@@ -67,17 +71,15 @@ data class ModuleId(
     private val groupPath = groupId.replace('.', '/')
     private val baseUrl = "https://repo1.maven.org/maven2/$groupPath/$artifactId"
 
-    fun fetchLatestModuleInfo(): String = fetchModuleInfo(fetchLatestVersion())
+    suspend fun fetchLatestModuleInfo(): String = fetchModuleInfo(fetchLatestVersion())
 
-    fun fetchModuleInfo(version: String): String = URL("$baseUrl/$version/$artifactId-$version.module").readText()
+    suspend fun fetchModuleInfo(version: String): String = http.get("$baseUrl/$version/$artifactId-$version.module").bodyAsText()
 
-    private fun fetchLatestVersion(): String {
-        val xml = mavenMetadataXml()
-        val match = Regex("<latest>([^<]+)</latest>").find(xml) ?: error("Latest version not found in XML:\n$xml")
+    private suspend fun fetchLatestVersion(): String {
+        val xml = http.get("$baseUrl/maven-metadata.xml").bodyAsText()
+        val match = latestVersionRegex.find(xml) ?: error("Latest version not found in XML:\n$xml")
         return match.groupValues[1]
     }
-
-    private fun mavenMetadataXml() = URL("$baseUrl/maven-metadata.xml").readText()
 }
 
 @Serializable
