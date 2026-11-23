@@ -1,7 +1,6 @@
 plugins {
-    val kotlinVersion = "2.1.0"
-    kotlin("jvm") version kotlinVersion
-    kotlin("plugin.serialization") version kotlinVersion
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
     application
 }
 
@@ -18,24 +17,23 @@ kotlin {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.serialization.json)
 
-    implementation("com.github.ajalt.clikt:clikt:5.0.2")
-    implementation("com.charleskorn.kaml:kaml:0.77.0")
+    implementation(libs.clikt)
+    implementation(libs.kaml)
 
     // the apache client is the only one supporting redirects
-    val ktorVersion = "3.1.1"
-    implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation(libs.ktor.client.apache)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
-    implementation("org.slf4j:slf4j-simple:2.1.0-alpha1")
+    implementation(libs.slf4j.simple)
 
     // necessary for encryption of secrets for GitHub
-    implementation("com.goterl:lazysodium-java:5.1.4")
-    implementation("net.java.dev.jna:jna:5.17.0")
+    implementation(libs.lazysodium.java)
+    implementation(libs.jna)
 }
 
 tasks.register<Copy>("installOnLocalWindows") {
