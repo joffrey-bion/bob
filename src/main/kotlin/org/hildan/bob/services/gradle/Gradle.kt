@@ -2,6 +2,7 @@ package org.hildan.bob.services.gradle
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.*
 import org.hildan.bob.http.*
 
@@ -32,5 +33,5 @@ data class GradleVersionDetails(
     val checksumUrl: String,
     val wrapperChecksumUrl: String
 ) {
-    suspend fun fetchChecksum(): String = http.get(checksumUrl).body()
+    suspend fun fetchChecksum(): String = http.get(checksumUrl).bodyAsText()
 }
