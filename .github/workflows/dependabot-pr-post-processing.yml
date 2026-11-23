@@ -1,0 +1,18 @@
+name: dependabot-pr-post-processing
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# We don't need any permissions here, because they are handled in the PAT.
+# We need the PAT because Dependabot workflows don't have enough permissions to process the PRs properly.
+permissions:
+  contents: none
+
+jobs:
+  dependabot-pr-post-processing:
+    uses: joffrey-bion/gh-workflows/.github/workflows/dependabot-pr-post-processing.yml@main
+    with:
+      auto-merge: all
+    secrets:
+      github-token: ${{ secrets.GH_PAT_FOR_DEPENDABOT }}
