@@ -14,5 +14,6 @@ jobs:
     uses: joffrey-bion/gh-workflows/.github/workflows/dependabot-pr-post-processing.yml@main
     with:
       auto-merge: all
+      update-kotlin-lock-files: false # this lib is JVM-only, no lock files
     secrets:
       github-token: ${{ secrets.GH_PAT_FOR_DEPENDABOT }}
